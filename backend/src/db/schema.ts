@@ -23,7 +23,7 @@ export async function createUsersTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS users_email_idx ON users (email);
     `);
 
-    console.log('Users table created successfully');
+    console.log('Users table initialized (already exists or created)');
   } catch (error) {
     console.error('Error creating users table:', error);
     throw error;
