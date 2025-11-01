@@ -3,14 +3,13 @@ import { extractTextFromPDF } from '../services/documentServices';
 import { db } from '../db/db';
 
 
-
 export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
   try {
     // Check if file was uploaded
     if (!req.file) {
       res.status(400).json({ error: 'No file uploaded' });
       return;
-    }
+    } 
 
     // Validate file type (PDF only)
     if (req.file.mimetype !== 'application/pdf') {
