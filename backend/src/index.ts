@@ -7,6 +7,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 
 import { initializeSchema } from './db/schema'
+import authRoutes from './routes/authRoutes'
 
 const app = express()
 const ALLOWED_ORIGIN = process.env.CORS_ORIGIN || '*'
@@ -22,6 +23,8 @@ app.get('/health', (_, res) => {
         status: 'ok'
     })
 })
+
+app.use('/api/auth', authRoutes)
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 
