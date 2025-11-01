@@ -30,7 +30,35 @@ export async function createUsersTable(): Promise<void> {
   }
 }
 
+export async function createDocumentsTable(): Promise<void> {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS documents (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        filename TEXT NOT NULL,
+        file_path TEXT,
+        extracted_text TEXT NOT NULL,
+        page_count INTEGER NOT NULL,
+        document_type TEXT DEFAULT 'policy',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS documents_user_id_idx ON documents (user_id);
+    `);
+
+    console.log('Documents table initialized (already exists or created)');
+  } catch (error) {
+    console.error('Error creating documents table:', error);
+    throw error;
+  }
+}
+
 export async function initializeSchema(): Promise<void> {
   await createUsersTable();
+  await createDocumentsTable();
 }
 
