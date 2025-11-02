@@ -8,6 +8,7 @@ import morgan from 'morgan'
 
 import { initializeSchema } from './db/schema'
 import authRoutes from './routes/authRoutes'
+import documentRoutes from './routes/documentRoutes'
 
 const app = express()
 const ALLOWED_ORIGIN = process.env.CORS_ORIGIN || '*'
@@ -25,6 +26,7 @@ app.get('/health', (_, res) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/documents', documentRoutes)
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 
