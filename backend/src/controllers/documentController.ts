@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { extractTextFromPDF } from '../services/documentServices';
+import { chunkDocument } from '../services/chunkingService';
+import { storeChunks } from '../services/vectorService';
 import { db } from '../db/db';
 
 
@@ -44,6 +46,10 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
     ]);
 
     const document = result.rows[0];
+
+    // Chunk the document and store in vector database
+    const chunks = await chunkDocument(extractedData.text, extractedData.pageCount, document.id);
+    await storeChunks(chunks, document.id);
 
     res.status(201).json({
       message: 'Document uploaded and processed successfully',
