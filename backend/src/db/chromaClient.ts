@@ -1,8 +1,12 @@
 import { ChromaClient } from 'chromadb';
 
-// Create Chroma client with local persistent storage
+// Create Chroma client
+// For ChromaDB v3+, you need a running Chroma server
+// Option 1: Run Docker: docker run -d -p 8000:8000 --name chroma chromadb/chroma
+// Option 2: Run Chroma server locally via Python
+// For now, we'll try to connect to localhost:8000 (default)
 const client = new ChromaClient({
-  path: './chroma_db', // Local storage directory (created automatically)
+  path: 'http://localhost:8000'
 });
 
 // Collection name for document embeddings

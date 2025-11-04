@@ -1,3 +1,4 @@
+/// <reference path="../types/express.d.ts" />
 import { Request, Response } from 'express';
 import { extractTextFromPDF } from '../services/documentServices';
 import { chunkDocument } from '../services/chunkingService';
