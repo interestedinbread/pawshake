@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { extractTextFromPDF } from '../services/documentServices';
 import { chunkDocument } from '../services/chunkingService';
 import { storeChunks } from '../services/vectorService';
+import { extractPolicySummary } from '../services/extractionService';
 import { db } from '../db/db';
 
 
@@ -52,6 +53,19 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
     const chunks = await chunkDocument(extractedData.text, extractedData.pageCount, document.id);
     await storeChunks(chunks, document.id);
 
+    // Extract policy summary (non-blocking - if it fails, upload still succeeds)
+    let policySummary = null;
+    try {
+      policySummary = await extractPolicySummary(
+        extractedData.text,
+        document.id,
+        extractedData.pageCount
+      );
+    } catch (extractionError) {
+      // Log error but don't fail the upload
+      console.warn('Policy extraction failed (document upload still succeeded):', extractionError);
+    }
+
     res.status(201).json({
       message: 'Document uploaded and processed successfully',
       document: {
@@ -60,7 +74,8 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
         pageCount: document.page_count,
         documentType: document.document_type,
         createdAt: document.created_at
-      }
+      },
+      ...(policySummary && { policySummary }) // Include policy summary if extraction succeeded
     });
   } catch (error) {
     console.error('Error uploading document:', error);

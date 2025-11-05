@@ -57,8 +57,38 @@ export async function createDocumentsTable(): Promise<void> {
   }
 }
 
+export async function createPolicySummariesTable(): Promise<void> {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS policy_summaries (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        document_id UUID NOT NULL UNIQUE REFERENCES documents(id) ON DELETE CASCADE,
+        summary_data JSONB NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS policy_summaries_document_id_idx ON policy_summaries (document_id);
+    `);
+
+    // GIN index on JSONB for efficient querying of nested fields
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS policy_summaries_summary_data_idx 
+      ON policy_summaries USING GIN (summary_data);
+    `);
+
+    console.log('Policy summaries table initialized (already exists or created)');
+  } catch (error) {
+    console.error('Error creating policy summaries table:', error);
+    throw error;
+  }
+}
+
 export async function initializeSchema(): Promise<void> {
   await createUsersTable();
   await createDocumentsTable();
+  await createPolicySummariesTable();
 }
 
