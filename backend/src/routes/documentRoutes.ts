@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { uploadDocument } from "../controllers/documentController";
+import { uploadDocument, getPolicySummary } from "../controllers/documentController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = Router();
@@ -15,5 +15,8 @@ const upload = multer({
 
 // Protect route with auth middleware, then handle file upload
 router.post('/upload', authenticateToken, upload.single('file'), uploadDocument);
+
+// Get policy summary for a document
+router.get('/:documentId/summary', authenticateToken, getPolicySummary);
 
 export default router;

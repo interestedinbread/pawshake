@@ -61,6 +61,24 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
         document.id,
         extractedData.pageCount
       );
+
+      // Save policy summary to database
+      if (policySummary) {
+        const summaryInsertQuery = `
+          INSERT INTO policy_summaries (document_id, summary_data)
+          VALUES ($1, $2)
+          ON CONFLICT (document_id) 
+          DO UPDATE SET 
+            summary_data = EXCLUDED.summary_data,
+            updated_at = now()
+          RETURNING id, created_at
+        `;
+
+        await db.query(summaryInsertQuery, [
+          document.id,
+          JSON.stringify(policySummary)
+        ]);
+      }
     } catch (extractionError) {
       // Log error but don't fail the upload
       console.warn('Policy extraction failed (document upload still succeeded):', extractionError);
@@ -81,6 +99,65 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
     console.error('Error uploading document:', error);
     res.status(500).json({ 
       error: 'Failed to process document',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+/**
+ * Get policy summary for a specific document
+ */
+export const getPolicySummary = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { documentId } = req.params;
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    if (!documentId) {
+      res.status(400).json({ error: 'Document ID is required' });
+      return;
+    }
+
+    // Verify document belongs to user and fetch summary
+    const query = `
+      SELECT ps.summary_data, ps.created_at, ps.updated_at
+      FROM policy_summaries ps
+      INNER JOIN documents d ON ps.document_id = d.id
+      WHERE ps.document_id = $1 AND d.user_id = $2
+    `;
+
+    const result = await db.query(query, [documentId, userId]);
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ 
+        error: 'Policy summary not found',
+        message: 'No policy summary exists for this document, or you do not have access to it.'
+      });
+      return;
+    }
+
+    const summaryRow = result.rows[0];
+    
+    // Parse JSONB data
+    const summaryData = typeof summaryRow.summary_data === 'string' 
+      ? JSON.parse(summaryRow.summary_data) 
+      : summaryRow.summary_data;
+
+    res.status(200).json({
+      summary: summaryData,
+      metadata: {
+        createdAt: summaryRow.created_at,
+        updatedAt: summaryRow.updated_at
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching policy summary:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch policy summary',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
