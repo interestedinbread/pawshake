@@ -1,8 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { authApi } from '../api/authApi';
 import type { ReactNode } from 'react';
-
-// API base URL - adjust if your backend runs on a different port
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // Types
 interface User {
@@ -51,19 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Login function
   const login = async (email: string, password: string): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
+      const data = await authApi.login(email, password)
 
       // Store token and user
       setToken(data.token);
@@ -79,27 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Register function
   const register = async (email: string, password: string): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Handle specific error cases
-        if (response.status === 409) {
-          throw new Error('User already exists');
-        }
-        throw new Error(data.error || 'Registration failed');
-      }
+      // Register the user (returns user but no token)
+      await authApi.register(email, password);
 
       // After registration, automatically log in the user
-      // Note: Your backend register endpoint doesn't return a token,
-      // so we'll need to call login after registration
+      // This will set both user and token in state
       await login(email, password);
     } catch (error) {
       console.error('Registration error:', error);
