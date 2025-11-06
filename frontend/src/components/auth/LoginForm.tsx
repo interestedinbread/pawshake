@@ -53,6 +53,7 @@ export function LoginForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     fullWidth
+                    className="mb-4"
                 />
 
                 <Button
