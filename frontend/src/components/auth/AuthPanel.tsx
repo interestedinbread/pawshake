@@ -1,27 +1,27 @@
 import { useState } from "react";
 import { LoginForm } from "./LoginForm";
 import { RegisterForm } from "./RegisterForm";
-import { Button } from "../common/Button"
+import { Button } from "../common/Button";
 
-export function AuthPanel () {
-    const [loggingIn, setLoggingIn] = useState(true)
+type AuthMode = 'login' | 'register';
 
-    return(
+export function AuthPanel() {
+    const [mode, setMode] = useState<AuthMode>('login');
+
+    return (
         <div>
-            {loggingIn ? <LoginForm/> : <RegisterForm/>}
-            <p
-            className="py-4">
-                {loggingIn? 'Not yet signed up?' : 'Already signed up?'}
+            {mode === 'login' ? <LoginForm /> : <RegisterForm />}
+            <p className="py-4 text-center text-gray-600">
+                {mode === 'login' ? 'Not yet signed up?' : 'Already signed up?'}
             </p>
             <Button
-            onClick={() => {
-                setLoggingIn(prev => !prev)
-                }
-            }
-            variant="primary"
-            size="md">
-                {loggingIn ? 'Register' : 'Login'}
+                onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+                variant="outline"
+                size="md"
+                fullWidth
+            >
+                {mode === 'login' ? 'Register' : 'Login'}
             </Button>
         </div>
-)
+    );
 }
