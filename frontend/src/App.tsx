@@ -4,6 +4,7 @@ import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
 import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { FileUpload } from './components/upload/FileUpload';
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
@@ -39,6 +40,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route 
+          path="/upload"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                
+              </Layout>
+            </ProtectedRoute>
+          }
+          />
         
         {/* Catch all - redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
