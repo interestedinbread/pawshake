@@ -4,7 +4,7 @@ import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
 import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
-import { FileUpload } from './components/upload/FileUpload';
+import { UploadPage } from './pages/UploadPage';
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
@@ -46,7 +46,7 @@ function App() {
           element={
             <ProtectedRoute>
               <Layout>
-                
+                <UploadPage/>
               </Layout>
             </ProtectedRoute>
           }

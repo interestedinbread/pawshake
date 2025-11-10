@@ -12,7 +12,7 @@ export function UploadPage () {
             await documentApi.uploadPolicy(file)
         } catch (err) {
             console.error('Error uploading file:', err)
-            throw Error;
+            throw err;
         } finally {
             setIsSubmitting(false)
         }
