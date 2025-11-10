@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { UploadPage } from './pages/UploadPage';
+import { SummaryPage } from './pages/SummaryPage';
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
@@ -47,6 +48,18 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <UploadPage/>
+              </Layout>
+            </ProtectedRoute>
+          }
+          />
+
+
+        <Route 
+          path="/summary"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <SummaryPage />
               </Layout>
             </ProtectedRoute>
           }

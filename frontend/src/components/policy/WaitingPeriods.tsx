@@ -9,9 +9,17 @@ interface WaitingPeriodsValues {
   cruciate?: number | null;
 }
 
+interface WaitingPeriodConfidence {
+  overall?: 'high' | 'medium' | 'low' | null;
+  accident?: 'high' | 'medium' | 'low' | null;
+  illness?: 'high' | 'medium' | 'low' | null;
+  orthopedic?: 'high' | 'medium' | 'low' | null;
+  cruciate?: 'high' | 'medium' | 'low' | null;
+}
+
 interface WaitingPeriodsProps {
   waitingPeriod?: WaitingPeriodsValues | null;
-  confidence?: WaitingPeriodsValues & { overall?: 'high' | 'medium' | 'low' | null };
+  confidence?: WaitingPeriodConfidence;
   sources?: {
     accident?: Array<{ textSnippet?: string; pageNumber?: number }>;
     illness?: Array<{ textSnippet?: string; pageNumber?: number }>;
@@ -60,7 +68,7 @@ export function WaitingPeriods({ waitingPeriod, confidence, sources, onEdit }: W
       <div className="grid gap-4 sm:grid-cols-2">
         {entries.map(({ label, key }) => {
           const value = waitingPeriod?.[key];
-          const fieldConfidence = confidence?.[key] as 'high' | 'medium' | 'low' | null | undefined;
+          const fieldConfidence = confidence?.[key];
           const fieldSources = sources?.[key];
 
           return (
