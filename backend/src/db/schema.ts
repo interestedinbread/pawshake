@@ -30,12 +30,37 @@ export async function createUsersTable(): Promise<void> {
   }
 }
 
+export async function createPoliciesTable(): Promise<void> {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS policies (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name TEXT,
+        description TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `);
+
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS policies_user_id_idx ON policies (user_id);
+    `);
+
+    console.log('Policies table initialized (already exists or created)');
+  } catch (error) {
+    console.error('Error creating policies table:', error);
+    throw error;
+  }
+}
+
 export async function createDocumentsTable(): Promise<void> {
   try {
     await db.query(`
       CREATE TABLE IF NOT EXISTS documents (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        policy_id UUID REFERENCES policies(id) ON DELETE CASCADE,
         filename TEXT NOT NULL,
         file_path TEXT,
         extracted_text TEXT NOT NULL,
@@ -47,7 +72,16 @@ export async function createDocumentsTable(): Promise<void> {
     `);
 
     await db.query(`
+      ALTER TABLE documents
+      ADD COLUMN IF NOT EXISTS policy_id UUID REFERENCES policies(id) ON DELETE CASCADE;
+    `);
+
+    await db.query(`
       CREATE INDEX IF NOT EXISTS documents_user_id_idx ON documents (user_id);
+    `);
+
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS documents_policy_id_idx ON documents (policy_id);
     `);
 
     console.log('Documents table initialized (already exists or created)');
@@ -62,7 +96,8 @@ export async function createPolicySummariesTable(): Promise<void> {
     await db.query(`
       CREATE TABLE IF NOT EXISTS policy_summaries (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        document_id UUID NOT NULL UNIQUE REFERENCES documents(id) ON DELETE CASCADE,
+        policy_id UUID UNIQUE REFERENCES policies(id) ON DELETE CASCADE,
+        document_id UUID UNIQUE REFERENCES documents(id) ON DELETE CASCADE,
         summary_data JSONB NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -70,7 +105,16 @@ export async function createPolicySummariesTable(): Promise<void> {
     `);
 
     await db.query(`
+      ALTER TABLE policy_summaries
+      ADD COLUMN IF NOT EXISTS policy_id UUID UNIQUE REFERENCES policies(id) ON DELETE CASCADE;
+    `);
+
+    await db.query(`
       CREATE INDEX IF NOT EXISTS policy_summaries_document_id_idx ON policy_summaries (document_id);
+    `);
+
+    await db.query(`
+      CREATE INDEX IF NOT EXISTS policy_summaries_policy_id_idx ON policy_summaries (policy_id);
     `);
 
     // GIN index on JSONB for efficient querying of nested fields
@@ -88,6 +132,7 @@ export async function createPolicySummariesTable(): Promise<void> {
 
 export async function initializeSchema(): Promise<void> {
   await createUsersTable();
+  await createPoliciesTable();
   await createDocumentsTable();
   await createPolicySummariesTable();
 }

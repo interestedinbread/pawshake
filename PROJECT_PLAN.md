@@ -9,6 +9,7 @@ Core Features:
 MVP user flow:
 
 User uploads policy PDF / takes photo.
+User policies can consist of a single pdf or multiple pdfs.
 OCR converts pages → text.
 Automatic extraction pipeline:
 	- Run an LLM extractor to produce a JSON summary (deductible, waiting_period, exclusions, required_docs, reimbursement_rate, plan name if detectable).
