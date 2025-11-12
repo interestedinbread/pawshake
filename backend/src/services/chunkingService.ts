@@ -6,6 +6,7 @@ export interface TextChunk {
   metadata: {
     pageNumber?: number;
     documentId?: string;
+    policyId?: string;
   };
 }
 

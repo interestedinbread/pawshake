@@ -7,6 +7,7 @@ export interface SimilarChunk {
   chunkIndex: number;
   pageNumber?: number;
   documentId?: string;
+  policyId?: string;
   distance: number; // Similarity distance (lower = more similar)
 }
 
@@ -14,8 +15,9 @@ export interface SimilarChunk {
  * Store document chunks with embeddings in Chroma vector database
  * @param chunks - Array of text chunks with metadata
  * @param documentId - Document ID (must be provided for tracking)
+ * @param policyId - Optional policy ID for grouping multiple documents
  */
-export async function storeChunks(chunks: TextChunk[], documentId: string): Promise<void> {
+export async function storeChunks(chunks: TextChunk[], documentId: string, policyId?: string): Promise<void> {
   if (!documentId) {
     throw new Error('Document ID is required to store chunks');
   }
@@ -44,6 +46,10 @@ export async function storeChunks(chunks: TextChunk[], documentId: string): Prom
         chunkIndex: chunk.chunkIndex,
       };
       
+      if (policyId) {
+        metadata.policyId = policyId;
+      }
+
       if (chunk.metadata.pageNumber !== undefined) {
         metadata.pageNumber = chunk.metadata.pageNumber;
       } else {
@@ -77,7 +83,8 @@ export async function storeChunks(chunks: TextChunk[], documentId: string): Prom
 export async function querySimilarChunks(
   queryText: string,
   nResults: number = 5,
-  filterDocumentId?: string
+  filterDocumentId?: string,
+  filterPolicyId?: string
 ): Promise<SimilarChunk[]> {
   try {
     // Get Chroma collection
@@ -96,8 +103,14 @@ export async function querySimilarChunks(
       nResults: nResults,
     };
 
-    if (filterDocumentId) {
-      queryParams.where = { documentId: filterDocumentId };
+    if (filterDocumentId || filterPolicyId) {
+      queryParams.where = {};
+      if (filterDocumentId) {
+        queryParams.where.documentId = filterDocumentId;
+      }
+      if (filterPolicyId) {
+        queryParams.where.policyId = filterPolicyId;
+      }
     }
 
     // Query Chroma for similar chunks
@@ -116,6 +129,7 @@ export async function querySimilarChunks(
         const metadata = metadatas[i] || {};
         const pageNumber = metadata.pageNumber;
         const documentIdValue = metadata.documentId;
+        const policyIdValue = metadata.policyId;
         
         const chunk: SimilarChunk = {
           text: documents[i] || '',
@@ -130,7 +144,11 @@ export async function querySimilarChunks(
         if (documentIdValue) {
           chunk.documentId = documentIdValue as string;
         }
-        
+
+        if (policyIdValue) {
+          chunk.policyId = policyIdValue as string;
+        }
+
         similarChunks.push(chunk);
       }
     }
