@@ -22,6 +22,7 @@ export async function chunkDocument(
   text: string,
   pageCount: number,
   documentId?: string,
+  policyId?: string,
   chunkSize: number = 1000,
   chunkOverlap: number = 200
 ): Promise<TextChunk[]> {
@@ -51,6 +52,10 @@ export async function chunkDocument(
     
     if (documentId) {
       metadata.documentId = documentId;
+    }
+
+    if (policyId) {
+      metadata.policyId = policyId;
     }
 
     return {

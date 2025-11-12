@@ -89,17 +89,37 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
     const document = result.rows[0];
 
     // Chunk the document and store in vector database
-    const chunks = await chunkDocument(extractedData.text, extractedData.pageCount, document.id);
+    const chunks = await chunkDocument(extractedData.text, extractedData.pageCount, document.id, policyId);
     await storeChunks(chunks, document.id, policyId);
+
+    // Fetch all documents for this policy to build aggregated summary context
+    const policyDocumentsResult = await db.query(
+      `
+        SELECT id, filename, extracted_text, page_count, document_type, created_at
+        FROM documents
+        WHERE policy_id = $1 AND user_id = $2
+        ORDER BY created_at ASC
+      `,
+      [policyId, userId]
+    );
+
+    const aggregatedText = policyDocumentsResult.rows
+      .map((docRow) => `Document: ${docRow.filename}\n\n${docRow.extracted_text}`)
+      .join('\n\n------------------------------\n\n');
+
+    const aggregatedPageCount = policyDocumentsResult.rows.reduce<number>((sum, docRow) => {
+      const pages = typeof docRow.page_count === 'number' ? docRow.page_count : 0;
+      return sum + pages;
+    }, 0) || extractedData.pageCount;
 
     // Extract policy summary (non-blocking - if it fails, upload still succeeds)
     let policySummary = null;
     try {
       policySummary = await extractPolicySummary(
-        extractedData.text,
+        aggregatedText,
         document.id,
         policyId,
-        extractedData.pageCount
+        aggregatedPageCount
       );
 
       // Save policy summary to database (policy-level)
@@ -139,6 +159,13 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
         documentType: document.document_type,
         createdAt: document.created_at,
       },
+      documents: policyDocumentsResult.rows.map((docRow) => ({
+        id: docRow.id,
+        filename: docRow.filename,
+        pageCount: docRow.page_count,
+        documentType: docRow.document_type,
+        createdAt: docRow.created_at,
+      })),
       ...(policySummary && { policySummary }), // Include policy summary if extraction succeeded
     });
   } catch (error) {
@@ -284,3 +311,87 @@ export const getPolicySummary = async (req: Request, res: Response): Promise<voi
   }
 };
 
+export const getPolicies = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    const policiesQuery = `
+      SELECT
+        id,
+        name,
+        description,
+        created_at,
+        updated_at
+      FROM policies
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+    `;
+
+    const policiesResult = await db.query(policiesQuery, [userId]);
+
+    res.status(200).json({
+      policies: policiesResult.rows,
+    });
+  } catch (error) {
+    console.error('Error fetching policies:', error);
+    res.status(500).json({
+      error: 'Failed to fetch policies',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getPolicyDocuments = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const { policyId } = req.params;
+
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    if (!policyId) {
+      res.status(400).json({ error: 'Policy ID is required' });
+      return;
+    }
+
+    const policyLookup = await db.query(
+      `SELECT id, name, description, created_at, updated_at FROM policies WHERE id = $1 AND user_id = $2`,
+      [policyId, userId]
+    );
+
+    if (policyLookup.rows.length === 0) {
+      res.status(404).json({
+        error: 'Policy not found',
+        message: 'No policy exists with this ID, or you do not have access to it.',
+      });
+      return;
+    }
+
+    const documentsQuery = `
+      SELECT id, filename, page_count, document_type, created_at, updated_at
+      FROM documents
+      WHERE policy_id = $1 AND user_id = $2
+      ORDER BY created_at ASC
+    `;
+
+    const documentsResult = await db.query(documentsQuery, [policyId, userId]);
+
+    res.status(200).json({
+      policy: policyLookup.rows[0],
+      documents: documentsResult.rows,
+    });
+  } catch (error) {
+    console.error('Error fetching policy documents:', error);
+    res.status(500).json({
+      error: 'Failed to fetch policy documents',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};

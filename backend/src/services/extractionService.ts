@@ -263,7 +263,7 @@ async function addSourceCitations(
     if (summary[field.key as keyof PolicySummary] !== null && 
         summary[field.key as keyof PolicySummary] !== undefined) {
       try {
-        const chunks = await querySimilarChunks(field.query, 3, documentId, policyId);
+        const chunks = await querySimilarChunks(field.query, 3, undefined, policyId);
         if (chunks.length > 0) {
           sources[field.key] = chunks.map(chunk => {
             const source: { pageNumber?: number; chunkId?: string; textSnippet?: string } = {

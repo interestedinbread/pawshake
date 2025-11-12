@@ -22,6 +22,7 @@ export interface SourceCitation {
   text: string;
   pageNumber?: number;
   documentId?: string;
+  policyId?: string;
   chunkIndex: number;
   similarity: number; // Lower distance = higher similarity
 }
@@ -30,12 +31,14 @@ export interface SourceCitation {
  * Generate an answer to a user's question using RAG (Retrieval-Augmented Generation)
  * @param question - User's question about their policy
  * @param documentId - Optional: filter to a specific document
+ * @param policyId - Optional: filter to a specific policy bundle
  * @param nResults - Number of similar chunks to retrieve (default 5)
  * @returns Answer with source citations
  */
 export async function answerQuestion(
   question: string,
   documentId?: string,
+  policyId?: string,
   nResults: number = 5
 ): Promise<QAResponse> {
   try {
@@ -45,7 +48,7 @@ export async function answerQuestion(
     }
 
     // Step 1: Retrieve relevant chunks from vector database
-    const relevantChunks = await querySimilarChunks(question, nResults, documentId);
+    const relevantChunks = await querySimilarChunks(question, nResults, documentId, policyId);
 
     if (relevantChunks.length === 0) {
       return {
@@ -99,6 +102,10 @@ ${context}`;
       
       if (chunk.documentId) {
         citation.documentId = chunk.documentId;
+      }
+
+      if (chunk.policyId) {
+        citation.policyId = chunk.policyId;
       }
       
       return citation;
