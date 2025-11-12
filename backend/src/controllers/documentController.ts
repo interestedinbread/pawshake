@@ -98,6 +98,7 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
       policySummary = await extractPolicySummary(
         extractedData.text,
         document.id,
+        policyId,
         extractedData.pageCount
       );
 

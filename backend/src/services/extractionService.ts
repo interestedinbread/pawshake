@@ -24,6 +24,7 @@ const extractionModel = new ChatOpenAI({
 export async function extractPolicySummary(
   documentText: string,
   documentId: string,
+  policyId: string,
   pageCount: number
 ): Promise<PolicySummary> {
   try {
@@ -33,6 +34,9 @@ export async function extractPolicySummary(
     }
     if (!documentId) {
       throw new Error('Document ID is required');
+    }
+    if (!policyId) {
+      throw new Error('Policy ID is required');
     }
 
     // Step 1: Build extraction prompt with few-shot examples
@@ -60,13 +64,14 @@ export async function extractPolicySummary(
     }
 
     // Step 4: Post-process and validate extracted fields
-    const validatedSummary = await postProcessAndValidate(extractedSummary, documentId);
+    const validatedSummary = await postProcessAndValidate(extractedSummary);
 
     // Step 5: Use RAG to verify and get source citations
-    const summaryWithSources = await addSourceCitations(validatedSummary, documentId);
+    const summaryWithSources = await addSourceCitations(validatedSummary, documentId, policyId);
 
     // Step 6: Add metadata
     summaryWithSources.documentId = documentId;
+    summaryWithSources.policyId = policyId;
     summaryWithSources.extractedAt = new Date().toISOString();
 
     return summaryWithSources as PolicySummary;
@@ -134,8 +139,7 @@ Return ONLY valid JSON, no additional text or explanation.`;
  * Post-process and validate extracted fields using regex and heuristics
  */
 async function postProcessAndValidate(
-  summary: Partial<PolicySummary>,
-  documentId: string
+  summary: Partial<PolicySummary>
 ): Promise<Partial<PolicySummary>> {
   const validated = { ...summary };
   const fieldConfidence: { [key: string]: 'high' | 'medium' | 'low' } = {};
@@ -241,7 +245,8 @@ async function postProcessAndValidate(
  */
 async function addSourceCitations(
   summary: Partial<PolicySummary>,
-  documentId: string
+  documentId: string,
+  policyId: string
 ): Promise<Partial<PolicySummary>> {
   const sources: { [key: string]: Array<{ pageNumber?: number; chunkId?: string; textSnippet?: string }> } = {};
 
@@ -258,7 +263,7 @@ async function addSourceCitations(
     if (summary[field.key as keyof PolicySummary] !== null && 
         summary[field.key as keyof PolicySummary] !== undefined) {
       try {
-        const chunks = await querySimilarChunks(field.query, 3, documentId);
+        const chunks = await querySimilarChunks(field.query, 3, documentId, policyId);
         if (chunks.length > 0) {
           sources[field.key] = chunks.map(chunk => {
             const source: { pageNumber?: number; chunkId?: string; textSnippet?: string } = {

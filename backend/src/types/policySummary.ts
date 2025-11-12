@@ -46,6 +46,7 @@ export interface PolicySummary {
   // Metadata
   extractedAt?: string; // ISO timestamp
   documentId?: string; // Reference to the document
+  policyId?: string; // Reference to the policy bundle
 }
 
 export interface DeductibleInfo {
