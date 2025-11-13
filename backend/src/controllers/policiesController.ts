@@ -35,3 +35,55 @@ export const createPolicy = async (req: Request, res: Response) => {
           });
     }
 }
+
+export const updatePolicyName = async (req: Request, res: Response) => {
+    try{
+        const { policyId } = req.params
+        const { name } = req.body
+        const userId = req.userId
+
+        if(!userId){
+            res.status(401).json({ error: 'User not authenticated'})
+            return 
+        }
+
+        if(!policyId){
+            res.status(400).json({ error: "Policy ID is required"})
+            return 
+        }
+
+        if(!name || name.trim() === ''){
+            res.status(400).json({ error: "Name is required"})
+            return
+        }
+
+        // Check if policy exists and belongs to user
+        const policyCheckQuery = `
+        SELECT id FROM policies WHERE id = $1 AND user_id = $2
+        `
+
+        const policyCheckResult = await db.query(policyCheckQuery, [policyId, userId])
+
+        if(policyCheckResult.rows.length === 0){
+            res.status(404).json({ error: 'Policy not found'})
+            return
+        }
+
+        // Update the policy name
+        const updateQuery = `
+        UPDATE policies 
+        SET name = $1, updated_at = now()
+        WHERE id = $2 AND user_id = $3
+        RETURNING id, name, description, created_at, updated_at;
+        `
+
+        const updateResult = await db.query(updateQuery, [name.trim(), policyId, userId])
+        res.status(200).json({ policy: updateResult.rows[0]})
+    } catch (err) {
+        console.error('Failed to update policy name', err)
+        res.status(500).json({
+            error: 'Failed to update policy',
+            message: err instanceof Error ? err.message : 'Unknown error'
+        })
+    }
+}
