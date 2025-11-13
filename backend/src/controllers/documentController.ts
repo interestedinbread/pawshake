@@ -27,44 +27,31 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Determine policy (existing or new)
-    const requestedPolicyId = (req.body.policyId as string | undefined)?.trim();
-    const policyName = (req.body.policyName as string | undefined)?.trim();
-    const policyDescription = (req.body.policyDescription as string | undefined)?.trim();
-
-    let policyId: string;
-    let policyNameResolved: string | null = null;
-
-    if (requestedPolicyId) {
-      const policyLookup = await db.query(
-        `SELECT id, name FROM policies WHERE id = $1 AND user_id = $2`,
-        [requestedPolicyId, userId]
-      );
-
-      if (policyLookup.rows.length === 0) {
-        res.status(404).json({
-          error: 'Policy not found',
-          message: 'The specified policy does not exist or you do not have access to it.',
-        });
-        return;
-      }
-
-      policyId = policyLookup.rows[0].id;
-      policyNameResolved = policyLookup.rows[0].name;
-    } else {
-      const generatedName = policyName || req.file.originalname.replace(/\.pdf$/i, '');
-      const newPolicy = await db.query(
-        `
-          INSERT INTO policies (user_id, name, description)
-          VALUES ($1, $2, $3)
-          RETURNING id, name
-        `,
-        [userId, generatedName, policyDescription || null]
-      );
-
-      policyId = newPolicy.rows[0].id;
-      policyNameResolved = newPolicy.rows[0].name;
+    // Policy ID is required - users must create a policy first
+    const policyId = (req.body.policyId as string | undefined)?.trim();
+    if (!policyId) {
+      res.status(400).json({
+        error: 'Policy ID is required',
+        message: 'You must create a policy first before uploading documents. Use POST /api/policies to create a new policy.',
+      });
+      return;
     }
+
+    // Verify policy exists and belongs to the user
+    const policyLookup = await db.query(
+      `SELECT id, name FROM policies WHERE id = $1 AND user_id = $2`,
+      [policyId, userId]
+    );
+
+    if (policyLookup.rows.length === 0) {
+      res.status(404).json({
+        error: 'Policy not found',
+        message: 'The specified policy does not exist or you do not have access to it.',
+      });
+      return;
+    }
+
+    const policyNameResolved = policyLookup.rows[0].name;
 
     // Extract text from PDF
     const pdfBuffer = req.file.buffer;
