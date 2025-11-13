@@ -8,6 +8,11 @@ declare global {
         originalname: string;
         mimetype: string;
       };
+      files?: Array<{
+        buffer: Buffer;
+        originalname: string;
+        mimetype: string;
+      }>;
     }
   }
 }

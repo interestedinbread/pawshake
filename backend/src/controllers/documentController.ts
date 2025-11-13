@@ -8,16 +8,24 @@ import { db } from '../db/db';
 
 export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Check if file was uploaded
-    if (!req.file) {
-      res.status(400).json({ error: 'No file uploaded' });
+    // Check if files were uploaded
+    // When using upload.array(), req.files is an array
+    const files = Array.isArray(req.files) ? req.files : [];
+    
+    if (files.length === 0) {
+      res.status(400).json({ error: 'No files uploaded' });
       return;
     }
 
-    // Validate file type (PDF only)
-    if (req.file.mimetype !== 'application/pdf') {
-      res.status(400).json({ error: 'Only PDF files are allowed' });
-      return;
+    // Validate each file (PDF only)
+    for (const file of files) {
+      if (file.mimetype !== 'application/pdf') {
+        res.status(400).json({ 
+          error: 'Only PDF files are allowed',
+          message: `File "${file.originalname}" is not a PDF.`
+        });
+        return;
+      }
     }
 
     // Get user ID from auth middleware
@@ -53,31 +61,81 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
 
     const policyNameResolved = policyLookup.rows[0].name;
 
-    // Extract text from PDF
-    const pdfBuffer = req.file.buffer;
-    const extractedData = await extractTextFromPDF(pdfBuffer);
+    // Track results for each file
+    const uploadResults: Array<{
+      status: 'success' | 'error';
+      document?: {
+        id: string;
+        filename: string;
+        pageCount: number;
+        documentType: string;
+        createdAt: Date;
+      };
+      filename?: string;
+      error?: string;
+    }> = [];
 
-    // Save document to database
-    const insertQuery = `
-      INSERT INTO documents (user_id, policy_id, filename, extracted_text, page_count, document_type)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, filename, page_count, document_type, created_at
-    `;
+    // Process each file
+    for (const file of files) {
+      try {
+        // Extract text from PDF
+        const pdfBuffer = file.buffer;
+        const extractedData = await extractTextFromPDF(pdfBuffer);
 
-    const result = await db.query(insertQuery, [
-      userId,
-      policyId,
-      req.file.originalname,
-      extractedData.text,
-      extractedData.pageCount,
-      'policy', // Default document type
-    ]);
+        // Save document to database
+        const insertQuery = `
+        INSERT INTO documents (user_id, policy_id, filename, extracted_text, page_count, document_type)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, filename, page_count, document_type, created_at
+        `;
 
-    const document = result.rows[0];
+        const insertResult = await db.query(insertQuery, [
+          userId,
+          policyId,
+          file.originalname,
+          extractedData.text,
+          extractedData.pageCount,
+          'policy', // Default document type
+        ]);
 
-    // Chunk the document and store in vector database
-    const chunks = await chunkDocument(extractedData.text, extractedData.pageCount, document.id, policyId);
-    await storeChunks(chunks, document.id, policyId);
+        const document = insertResult.rows[0];
+        
+        // Chunk the document and store in vector database
+        const chunks = await chunkDocument(
+          extractedData.text,
+          extractedData.pageCount,
+          document.id,
+          policyId
+        );
+        await storeChunks(chunks, document.id, policyId);
+
+        // Track successful upload
+        uploadResults.push({
+          status: 'success',
+          document: {
+            id: document.id,
+            filename: document.filename,
+            pageCount: document.page_count,
+            documentType: document.document_type,
+            createdAt: document.created_at,
+          },
+        });
+      } catch (err) {
+        // Handle individual file errors (continue processing other files)
+        console.error(`Error processing file ${file.originalname}:`, err);
+        uploadResults.push({
+          status: 'error',
+          filename: file.originalname,
+          error: err instanceof Error ? err.message : 'Unknown error',
+        });
+      }
+    }
+
+    
+
+    
+
+    
 
     // Fetch all documents for this policy to build aggregated summary context
     const policyDocumentsResult = await db.query(
@@ -97,54 +155,64 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
     const aggregatedPageCount = policyDocumentsResult.rows.reduce<number>((sum, docRow) => {
       const pages = typeof docRow.page_count === 'number' ? docRow.page_count : 0;
       return sum + pages;
-    }, 0) || extractedData.pageCount;
+    }, 0);
 
     // Extract policy summary (non-blocking - if it fails, upload still succeeds)
+    // Use the first document from the policy for summary tracking
+    const firstDocumentId = policyDocumentsResult.rows.length > 0 
+      ? policyDocumentsResult.rows[0].id 
+      : null;
+    
     let policySummary = null;
-    try {
-      policySummary = await extractPolicySummary(
-        aggregatedText,
-        document.id,
-        policyId,
-        aggregatedPageCount
-      );
-
-      // Save policy summary to database (policy-level)
-      if (policySummary) {
-        const summaryInsertQuery = `
-          INSERT INTO policy_summaries (policy_id, document_id, summary_data)
-          VALUES ($1, $2, $3)
-          ON CONFLICT (policy_id)
-          DO UPDATE SET
-            summary_data = EXCLUDED.summary_data,
-            document_id = EXCLUDED.document_id,
-            updated_at = now()
-          RETURNING id, created_at, updated_at
-        `;
-
-        await db.query(summaryInsertQuery, [
+    if (firstDocumentId && aggregatedText) {
+      try {
+        policySummary = await extractPolicySummary(
+          aggregatedText,
+          firstDocumentId,
           policyId,
-          document.id,
-          JSON.stringify(policySummary),
-        ]);
+          aggregatedPageCount
+        );
+
+        // Save policy summary to database (policy-level)
+        if (policySummary) {
+          const summaryInsertQuery = `
+            INSERT INTO policy_summaries (policy_id, document_id, summary_data)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (policy_id)
+            DO UPDATE SET
+              summary_data = EXCLUDED.summary_data,
+              document_id = EXCLUDED.document_id,
+              updated_at = now()
+            RETURNING id, created_at, updated_at
+          `;
+
+          await db.query(summaryInsertQuery, [
+            policyId,
+            firstDocumentId,
+            JSON.stringify(policySummary),
+          ]);
+        }
+      } catch (extractionError) {
+        // Log error but don't fail the upload
+        console.warn('Policy extraction failed (document upload still succeeded):', extractionError);
       }
-    } catch (extractionError) {
-      // Log error but don't fail the upload
-      console.warn('Policy extraction failed (document upload still succeeded):', extractionError);
     }
 
+    // Calculate summary statistics
+    const successful = uploadResults.filter(r => r.status === 'success').length;
+    const failed = uploadResults.filter(r => r.status === 'error').length;
+
     res.status(201).json({
-      message: 'Document uploaded and processed successfully',
+      message: 'File upload completed',
       policy: {
         id: policyId,
         name: policyNameResolved,
       },
-      document: {
-        id: document.id,
-        filename: document.filename,
-        pageCount: document.page_count,
-        documentType: document.document_type,
-        createdAt: document.created_at,
+      results: uploadResults,
+      summary: {
+        totalFiles: files.length,
+        successful,
+        failed,
       },
       documents: policyDocumentsResult.rows.map((docRow) => ({
         id: docRow.id,
