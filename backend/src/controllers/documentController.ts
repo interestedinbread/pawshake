@@ -132,11 +132,6 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
     }
 
     
-
-    
-
-    
-
     // Fetch all documents for this policy to build aggregated summary context
     const policyDocumentsResult = await db.query(
       `

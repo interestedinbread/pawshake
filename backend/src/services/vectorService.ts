@@ -1,5 +1,6 @@
 import { getCollection } from '../db/chromaClient';
-import { generateEmbeddings, generateEmbedding } from './embeddingService';
+import { generateEmbeddings } from './embeddingService';
+import { generateOrGetEmbedding } from './embeddingCache';
 import { TextChunk, extractTextFromChunks } from './chunkingService';
 
 export interface SimilarChunk {
@@ -90,8 +91,8 @@ export async function querySimilarChunks(
     // Get Chroma collection
     const collection = await getCollection();
 
-    // Generate embedding for the query
-    const queryEmbedding = await generateEmbedding(queryText);
+    // Generate embedding for the query (with caching)
+    const queryEmbedding = await generateOrGetEmbedding(queryText);
 
     // Prepare query with optional filter
     const queryParams: {
