@@ -87,3 +87,45 @@ export const updatePolicyName = async (req: Request, res: Response) => {
         })
     }
 }
+
+export const deletePolicy = async (req: Request, res:Response) => {
+    try{
+        const { policyId } = req.params
+        const userId = req.userId
+
+        if(!policyId){
+            res.status(400).json({ error: 'Policy ID required'})
+            return
+        }
+
+        if(!userId || userId.trim() === ''){
+            res.status(400).json({ error: 'User ID required'})
+            return
+        }
+
+        // Check if policy exists and belongs to user
+        const policyCheckQuery = `
+        SELECT id FROM policies WHERE id = $1 AND user_id = $2
+        `
+
+        const policyCheckResult = await db.query(policyCheckQuery, [policyId, userId])
+
+        if(policyCheckResult.rows.length === 0){
+            res.status(404).json({ error: 'Policy not found'})
+            return
+        }
+
+        const deleteQuery = `
+            DELETE FROM policies WHERE id = $1 AND user_id = $2
+        `
+
+        const result = await db.query(deleteQuery, [policyId, userId])
+        res.status(200).json({ result: result.rowCount })
+    } catch (err) {
+        console.error('Failed to delete policy', err)
+        res.status(500).json({
+            error: 'Failed to delete policy',
+            message: err instanceof Error ? err.message : 'Unknown error'
+        })
+    }
+}
