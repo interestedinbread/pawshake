@@ -22,14 +22,15 @@ interface PolicySummaryResponse {
   };
 }
 
-function createUploadFormData(file: File): FormData {
+function createUploadFormData(file: File, policyId: string): FormData {
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append('files', file); // Backend expects 'files' (array)
+  formData.append('policyId', policyId);
   return formData;
 }
 
-async function uploadPolicy(file: File): Promise<UploadPolicyResponse> {
-  const formData = createUploadFormData(file);
+async function uploadPolicy(file: File, policyId: string): Promise<UploadPolicyResponse> {
+  const formData = createUploadFormData(file, policyId);
   return apiClient.postFormData<UploadPolicyResponse>('/documents/upload', formData);
 }
 
