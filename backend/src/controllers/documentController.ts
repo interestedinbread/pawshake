@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import { extractTextFromPDF } from '../services/documentServices';
 import { chunkDocument } from '../services/chunkingService';
-import { storeChunks } from '../services/vectorService';
+import { storeChunks, deleteChunksByDocumentId } from '../services/vectorService';
 import { extractPolicySummary } from '../services/extractionService';
 import { db } from '../db/db';
 
@@ -470,6 +470,80 @@ export const getPolicyDocuments = async (req: Request, res: Response): Promise<v
     res.status(500).json({
       error: 'Failed to fetch policy documents',
       message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const deleteDocument = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { documentId } = req.params;
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    if (!documentId) {
+      res.status(400).json({ error: 'Document ID is required' });
+      return;
+    }
+
+    // Verify document exists and belongs to user, and get policyId
+    const documentCheck = await db.query(
+      `SELECT id, policy_id, filename FROM documents WHERE id = $1 AND user_id = $2`,
+      [documentId, userId]
+    );
+
+    if (documentCheck.rows.length === 0) {
+      res.status(404).json({
+        error: 'Document not found',
+        message: 'No document exists with this ID, or you do not have access to it.',
+      });
+      return;
+    }
+
+    const document = documentCheck.rows[0];
+    const policyId = document.policy_id;
+
+    // Delete ChromaDB embeddings for this document
+    let deletedChunks = 0;
+    try {
+      deletedChunks = await deleteChunksByDocumentId(documentId);
+    } catch (chromaError) {
+      // Log error but don't fail the deletion
+      // Database deletion will still proceed
+      console.warn('Failed to delete ChromaDB chunks (database deletion will proceed):', chromaError);
+    }
+
+    // Delete document from database
+    const deleteQuery = `
+      DELETE FROM documents WHERE id = $1 AND user_id = $2
+    `;
+
+    const deleteResult = await db.query(deleteQuery, [documentId, userId]);
+
+    if (deleteResult.rowCount === 0) {
+      res.status(404).json({ error: 'Document not found' });
+      return;
+    }
+
+    // If policy summary exists and this was the only document, the summary will be deleted via CASCADE
+    // If other documents remain, we could optionally trigger summary re-extraction here
+    // For MVP, we'll just return success (summary can be re-extracted on next upload)
+
+    res.status(200).json({
+      message: 'Document deleted successfully',
+      documentId,
+      filename: document.filename,
+      policyId: policyId || null,
+      deletedChunks,
+    });
+  } catch (err) {
+    console.error('Failed to delete document:', err);
+    res.status(500).json({
+      error: 'Failed to delete document',
+      message: err instanceof Error ? err.message : 'Unknown error',
     });
   }
 };

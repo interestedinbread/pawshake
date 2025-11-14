@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { uploadDocument, getPolicySummary } from "../controllers/documentController";
+import { uploadDocument, getPolicySummary, deleteDocument } from "../controllers/documentController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = Router();
@@ -18,5 +18,8 @@ router.post('/upload', authenticateToken, upload.array('files', 10), uploadDocum
 
 // Legacy: Get policy summary by document (fallback support)
 router.get('/:documentId/summary', authenticateToken, getPolicySummary);
+
+// Delete a document
+router.delete('/:documentId', authenticateToken, deleteDocument);
 
 export default router;

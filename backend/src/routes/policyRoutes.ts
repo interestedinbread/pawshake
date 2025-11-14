@@ -1,4 +1,4 @@
-import { createPolicy, updatePolicyName } from "../controllers/policiesController";
+import { createPolicy, updatePolicyName, deletePolicy } from "../controllers/policiesController";
 import { getPolicies, getPolicyDocuments, getPolicySummary } from "../controllers/documentController";
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
@@ -19,5 +19,7 @@ router.get('/:policyId/documents', authenticateToken, getPolicyDocuments);
 
 // Update policy name
 router.patch('/:policyId', authenticateToken, updatePolicyName);
+
+router.delete('/:policyId', authenticateToken, deletePolicy)
 
 export default router;
