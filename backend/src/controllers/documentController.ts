@@ -528,9 +528,19 @@ export const deleteDocument = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // If policy summary exists and this was the only document, the summary will be deleted via CASCADE
-    // If other documents remain, we could optionally trigger summary re-extraction here
-    // For MVP, we'll just return success (summary can be re-extracted on next upload)
+    // Delete policy summary (will be re-extracted on next document upload)
+    if (policyId) {
+      try {
+        await db.query(
+          'DELETE FROM policy_summaries WHERE policy_id = $1',
+          [policyId]
+        );
+      } catch (summaryError) {
+        // Log error but don't fail the deletion
+        // Document deletion already succeeded
+        console.warn('Failed to delete policy summary (document deletion succeeded):', summaryError);
+      }
+    }
 
     res.status(200).json({
       message: 'Document deleted successfully',
