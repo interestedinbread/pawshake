@@ -3,35 +3,34 @@ import { Button } from '../common/Button';
 import type { ChangeEvent, DragEvent, FormEvent } from 'react';
 
 interface FileUploadProps {
-  onSubmit: (file: File) => Promise<void> | void;
+  onSubmit: (files: File[]) => Promise<void> | void;
   isSubmitting?: boolean;
   maxFileSizeMb?: number;
+  maxFiles?: number;
 }
 
 const ACCEPTED_TYPES = ['application/pdf'];
 
-export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10 }: FileUploadProps) {
+export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10, maxFiles = 10 }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const resetError = () => setError(null);
 
   const validateFile = useCallback(
-    (file: File) => {
+    (file: File): string | null => {
       if (!ACCEPTED_TYPES.includes(file.type)) {
-        setError('Only PDF files are supported right now.');
-        return false;
+        return `"${file.name}" is not a PDF file. Only PDF files are supported.`;
       }
 
       const sizeInMb = file.size / (1024 * 1024);
       if (sizeInMb > maxFileSizeMb) {
-        setError(`File is too large. Maximum size is ${maxFileSizeMb} MB.`);
-        return false;
+        return `"${file.name}" is too large (${sizeInMb.toFixed(1)} MB). Maximum size is ${maxFileSizeMb} MB.`;
       }
 
-      return true;
+      return null;
     },
     [maxFileSizeMb]
   );
@@ -39,20 +38,53 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10 
   const handleFileSelection = useCallback(
     (fileList: FileList | null) => {
       if (!fileList || fileList.length === 0) {
-        setSelectedFile(null);
+        setSelectedFiles([]);
         return;
       }
 
-      const file = fileList[0];
       resetError();
 
-      if (validateFile(file)) {
-        setSelectedFile(file);
+      // Convert FileList to Array
+      const filesArray = Array.from(fileList);
+
+      // Check max files limit
+      if (filesArray.length > maxFiles) {
+        setError(`You can only upload up to ${maxFiles} files at once.`);
+        setSelectedFiles([]);
+        return;
+      }
+
+      // Validate all files
+      const validFiles: File[] = [];
+      const errors: string[] = [];
+
+      filesArray.forEach((file) => {
+        const validationError = validateFile(file);
+        if (validationError) {
+          errors.push(validationError);
+        } else {
+          validFiles.push(file);
+        }
+      });
+
+      // If there are validation errors, show the first one
+      if (errors.length > 0) {
+        setError(errors[0]);
+        // Still set valid files if any
+        setSelectedFiles(validFiles);
       } else {
-        setSelectedFile(null);
+        // Combine with existing files (for adding more files)
+        setSelectedFiles((prev) => {
+          const combined = [...prev, ...validFiles];
+          // Remove duplicates by name
+          const unique = combined.filter((file, index, self) =>
+            index === self.findIndex((f) => f.name === file.name && f.size === file.size)
+          );
+          return unique;
+        });
       }
     },
-    [validateFile]
+    [validateFile, maxFiles]
   );
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -78,13 +110,15 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10 
     event.preventDefault();
     resetError();
 
-    if (!selectedFile) {
-      setError('Please choose a policy PDF before uploading.');
+    if (selectedFiles.length === 0) {
+      setError('Please choose at least one policy PDF before uploading.');
       return;
     }
 
     try {
-      await onSubmit(selectedFile);
+      await onSubmit(selectedFiles);
+      // Clear selected files after successful upload
+      setSelectedFiles([]);
     } catch (submissionError) {
       const message =
         submissionError instanceof Error
@@ -94,14 +128,18 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10 
     }
   };
 
+  const handleRemoveFile = (indexToRemove: number) => {
+    setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6">
         <header className="space-y-2">
-          <h2 className="text-2xl font-semibold text-slate-900">Upload your policy PDF</h2>
+          <h2 className="text-2xl font-semibold text-slate-900">Upload your policy PDFs</h2>
           <p className="text-sm text-slate-600">
-            We&apos;ll extract a structured summary, generate embeddings for Q&A, and surface anything that needs
-            attention. PDFs up to {maxFileSizeMb} MB are supported.
+            Upload one or more PDFs to add to this policy bundle. We&apos;ll extract a structured summary, generate embeddings for Q&A, and surface anything that needs
+            attention. PDFs up to {maxFileSizeMb} MB are supported (max {maxFiles} files).
           </p>
         </header>
 
@@ -132,15 +170,16 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10 
               }`}
             >
               <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-600">
-                Drag &amp; drop or choose a file
+                Drag &amp; drop or choose files
               </span>
-              <p className="text-sm text-slate-600">Accepts PDF (.pdf) — up to {maxFileSizeMb} MB</p>
+              <p className="text-sm text-slate-600">Accepts PDF (.pdf) — up to {maxFileSizeMb} MB per file</p>
               <input
                 ref={fileInputRef}
                 id="policy-upload"
                 name="policy-upload"
                 type="file"
                 accept={ACCEPTED_TYPES.join(',')}
+                multiple
                 className="sr-only"
                 onChange={handleInputChange}
               />
@@ -152,10 +191,29 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10 
               >
                 Browse files
               </Button>
-              {selectedFile && (
-                <div className="flex flex-col items-center gap-1 text-xs text-slate-500">
-                  <span className="font-medium text-slate-700">Selected:</span>
-                  <span>{selectedFile.name}</span>
+              {selectedFiles.length > 0 && (
+                <div className="w-full mt-2 space-y-2">
+                  <p className="text-xs font-medium text-slate-700">
+                    {selectedFiles.length} file{selectedFiles.length !== 1 ? 's' : ''} selected:
+                  </p>
+                  <div className="max-h-32 overflow-y-auto space-y-1">
+                    {selectedFiles.map((file, index) => (
+                      <div
+                        key={`${file.name}-${index}`}
+                        className="flex items-center justify-between bg-white border border-slate-200 rounded px-2 py-1 text-xs"
+                      >
+                        <span className="text-slate-600 truncate flex-1 mr-2">{file.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(index)}
+                          className="text-red-600 hover:text-red-700 font-medium"
+                          aria-label={`Remove ${file.name}`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </label>
@@ -172,8 +230,14 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10 
           <p className="text-xs text-slate-500">
             Need help? Upload a sample policy to see how the extraction works before using a real document.
           </p>
-          <Button type="submit" variant="primary" size="md" isLoading={isSubmitting} disabled={isSubmitting}>
-            Upload and process policy
+          <Button 
+            type="submit" 
+            variant="primary" 
+            size="md" 
+            isLoading={isSubmitting} 
+            disabled={isSubmitting || selectedFiles.length === 0}
+          >
+            Upload {selectedFiles.length > 0 ? `${selectedFiles.length} ` : ''}file{selectedFiles.length !== 1 ? 's' : ''}
           </Button>
         </div>
       </form>

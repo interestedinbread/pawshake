@@ -37,18 +37,22 @@ export function UploadPage() {
         }
     };
 
-    const handleUpload = async (file: File) => {
+    const handleUpload = async (files: File[]) => {
         if (!createdPolicyId) {
             throw new Error('Policy ID is required. Please create a policy first.');
+        }
+
+        if (files.length === 0) {
+            throw new Error('Please select at least one file to upload.');
         }
 
         setIsSubmitting(true);
         setError(null);
 
         try {
-            await documentApi.uploadPolicy(file, createdPolicyId);
+            await documentApi.uploadPolicy(files, createdPolicyId);
         } catch (err) {
-            console.error('Error uploading file:', err);
+            console.error('Error uploading files:', err);
             throw err;
         } finally {
             setIsSubmitting(false);
