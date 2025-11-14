@@ -1,6 +1,7 @@
 /// <reference path="../types/express.d.ts" />
 import { Request, Response } from 'express'
 import { db } from '../db/db'
+import { deleteChunksByPolicyId } from '../services/vectorService'
 
 export const createPolicy = async (req: Request, res: Response) => {
 
@@ -115,12 +116,41 @@ export const deletePolicy = async (req: Request, res:Response) => {
             return
         }
 
+        // Get document count before deletion (for response)
+        const docCountResult = await db.query(
+            'SELECT COUNT(*) as count FROM documents WHERE policy_id = $1',
+            [policyId]
+        )
+        const documentCount = Number(docCountResult.rows[0]?.count || 0)
+
+        // Delete ChromaDB embeddings for this policy
+        let deletedChunks = 0
+        try {
+            deletedChunks = await deleteChunksByPolicyId(policyId)
+        } catch (chromaError) {
+            // Log error but don't fail the deletion
+            // Database deletion will still proceed
+            console.warn('Failed to delete ChromaDB chunks (database deletion will proceed):', chromaError)
+        }
+
+        // Delete policy from database (CASCADE will delete documents and summaries)
         const deleteQuery = `
             DELETE FROM policies WHERE id = $1 AND user_id = $2
         `
 
         const result = await db.query(deleteQuery, [policyId, userId])
-        res.status(200).json({ result: result.rowCount })
+        
+        if (result.rowCount === 0) {
+            res.status(404).json({ error: 'Policy not found' })
+            return
+        }
+
+        res.status(200).json({
+            message: 'Policy deleted successfully',
+            policyId,
+            deletedDocuments: documentCount,
+            deletedChunks,
+        })
     } catch (err) {
         console.error('Failed to delete policy', err)
         res.status(500).json({

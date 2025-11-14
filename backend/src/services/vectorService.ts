@@ -164,7 +164,7 @@ export async function querySimilarChunks(
  * Delete all chunks for a specific document
  * @param documentId - Document ID whose chunks should be deleted
  */
-export async function deleteChunksByDocument(documentId: string): Promise<void> {
+export async function deleteChunksByDocumentId(documentId: string): Promise<number> {
   try {
     const collection = await getCollection();
 
@@ -177,9 +177,39 @@ export async function deleteChunksByDocument(documentId: string): Promise<void> 
       // Delete all chunks for this document
       await collection.delete({ ids: results.ids });
       console.log(`Deleted ${results.ids.length} chunks for document ${documentId}`);
+      return results.ids.length;
     }
+    
+    return 0;
   } catch (error) {
-    throw new Error(`Failed to delete chunks: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(`Failed to delete chunks for document: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Delete all chunks for a specific policy (all documents in the policy)
+ * @param policyId - Policy ID whose chunks should be deleted
+ * @returns Number of chunks deleted
+ */
+export async function deleteChunksByPolicyId(policyId: string): Promise<number> {
+  try {
+    const collection = await getCollection();
+
+    // Query to find all chunk IDs for this policy
+    const results = await collection.get({
+      where: { policyId: policyId },
+    });
+
+    if (results.ids && results.ids.length > 0) {
+      // Delete all chunks for this policy
+      await collection.delete({ ids: results.ids });
+      console.log(`Deleted ${results.ids.length} chunks for policy ${policyId}`);
+      return results.ids.length;
+    }
+    
+    return 0;
+  } catch (error) {
+    throw new Error(`Failed to delete chunks for policy: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
