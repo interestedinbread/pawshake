@@ -68,8 +68,8 @@ export function PolicyCard({
     }
   }, [uploadedAt]);
 
-  const summaryHref = `/summary?documentId=${encodeURIComponent(id)}`;
-  const qaHref = `/qa?documentId=${encodeURIComponent(id)}`;
+  const summaryHref = `/summary?policyId=${encodeURIComponent(id)}`;
+  const qaHref = `/qa?policyId=${encodeURIComponent(id)}`;
 
   return (
     <article className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

@@ -16,9 +16,6 @@ const upload = multer({
 // Protect route with auth middleware, then handle file upload
 router.post('/upload', authenticateToken, upload.array('files', 10), uploadDocument);
 
-// Legacy: Get policy summary by document (fallback support)
-router.get('/:documentId/summary', authenticateToken, getPolicySummary);
-
 // Delete a document
 router.delete('/:documentId', authenticateToken, deleteDocument);
 

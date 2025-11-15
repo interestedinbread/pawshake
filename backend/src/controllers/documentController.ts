@@ -232,7 +232,7 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
  */
 export const getPolicySummary = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { policyId, documentId } = req.params;
+    const { policyId } = req.params;
     const userId = req.userId;
 
     if (!userId) {
@@ -240,27 +240,7 @@ export const getPolicySummary = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    let resolvedPolicyId: string | null = policyId ?? null;
-    let resolvedDocumentId: string | null = documentId ?? null;
-
-    if (!resolvedPolicyId && resolvedDocumentId) {
-      const documentLookup = await db.query(
-        `SELECT policy_id FROM documents WHERE id = $1 AND user_id = $2`,
-        [resolvedDocumentId, userId]
-      );
-
-      if (documentLookup.rows.length === 0) {
-        res.status(404).json({
-          error: 'Document not found',
-          message: 'No document exists with this ID, or you do not have access to it.',
-        });
-        return;
-      }
-
-      resolvedPolicyId = documentLookup.rows[0].policy_id;
-    }
-
-    if (!resolvedPolicyId) {
+    if (!policyId) {
       res.status(400).json({
         error: 'Policy ID is required',
         message: 'Provide a policyId parameter or upload documents into a policy bundle first.',
@@ -275,51 +255,15 @@ export const getPolicySummary = async (req: Request, res: Response): Promise<voi
       WHERE ps.policy_id = $1 AND p.user_id = $2
     `;
 
-    const summaryResult = await db.query(summaryQuery, [resolvedPolicyId, userId]);
-
-    if (summaryResult.rows.length === 0) {
-      // Fallback: legacy single-document summary lookup
-      if (resolvedDocumentId) {
-        const legacyQuery = `
-          SELECT ps.summary_data, ps.created_at, ps.updated_at
-          FROM policy_summaries ps
-          INNER JOIN documents d ON ps.document_id = d.id
-          WHERE ps.document_id = $1 AND d.user_id = $2
-        `;
-
-        const legacyResult = await db.query(legacyQuery, [resolvedDocumentId, userId]);
-
-        if (legacyResult.rows.length === 0) {
-          res.status(404).json({
-            error: 'Policy summary not found',
-            message: 'No policy summary exists for this policy yet.',
-          });
-          return;
-        }
-
-        const legacyRow = legacyResult.rows[0];
-        const legacySummary = typeof legacyRow.summary_data === 'string'
-          ? JSON.parse(legacyRow.summary_data)
-          : legacyRow.summary_data;
-
-        res.status(200).json({
-          summary: legacySummary,
-          metadata: {
-            createdAt: legacyRow.created_at,
-            updatedAt: legacyRow.updated_at,
-          },
-        });
-        return;
-      }
-
-      res.status(404).json({
-        error: 'Policy summary not found',
-        message: 'No policy summary exists for this policy yet.',
-      });
-      return;
-    }
+    const summaryResult = await db.query(summaryQuery, [policyId, userId]);
 
     const summaryRow = summaryResult.rows[0];
+
+    if(summaryRow.length === 0){
+      res.status(404).json({ error: 'No summary available'})
+      return
+    }
+
     const summaryData = typeof summaryRow.summary_data === 'string'
       ? JSON.parse(summaryRow.summary_data)
       : summaryRow.summary_data;
@@ -331,12 +275,12 @@ export const getPolicySummary = async (req: Request, res: Response): Promise<voi
         WHERE policy_id = $1 AND user_id = $2
         ORDER BY created_at ASC
       `,
-      [resolvedPolicyId, userId]
+      [policyId, userId]
     );
 
     res.status(200).json({
       policy: {
-        id: resolvedPolicyId,
+        id: policyId,
         name: summaryRow.policy_name ?? null,
       },
       summary: summaryData,

@@ -54,8 +54,8 @@ async function uploadPolicy(files: File[], policyId: string): Promise<UploadPoli
   return apiClient.postFormData<UploadPolicyResponse>('/documents/upload', formData);
 }
 
-async function getPolicySummary(documentId: string): Promise<PolicySummaryResponse> {
-  return apiClient.get<PolicySummaryResponse>(`/documents/${documentId}/summary`);
+async function getPolicySummary(policyId: string): Promise<PolicySummaryResponse> {
+  return apiClient.get<PolicySummaryResponse>(`/policies/${policyId}/summary`);
 }
 
 export const documentApi = {

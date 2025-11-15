@@ -43,7 +43,7 @@ interface PolicySummaryMetadata {
 export function SummaryPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const documentId = searchParams.get('documentId');
+  const policyId = searchParams.get('policyId');
 
   const [summary, setSummary] = useState<PolicySummaryData | null>(null);
   const [metadata, setMetadata] = useState<PolicySummaryMetadata | null>(null);
@@ -51,7 +51,7 @@ export function SummaryPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const id = documentId;
+    const id = policyId;
 
     if (!id) {
       setError('No document selected. Upload a policy or choose one from your documents.');
@@ -87,17 +87,17 @@ export function SummaryPage() {
       isMounted = false;
       controller.abort();
     };
-  }, [documentId]);
+  }, [policyId]);
 
   const fieldConfidence = useMemo(() => summary?.confidence?.fieldConfidence ?? {}, [summary]);
   const sources = useMemo(() => summary?.sources ?? {}, [summary]);
 
   const handleRefresh = async () => {
-    if (!documentId) return;
+    if (!policyId) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await documentApi.getPolicySummary(documentId!);
+      const response = await documentApi.getPolicySummary(policyId!);
       setSummary(response.summary as PolicySummaryData);
       setMetadata(response.metadata);
     } catch (err) {
@@ -116,7 +116,7 @@ export function SummaryPage() {
     navigate('/upload');
   };
 
-  if (!documentId) {
+  if (!policyId) {
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-800">
         <p className="font-medium">No policy selected.</p>
