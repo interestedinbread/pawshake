@@ -8,9 +8,26 @@ interface UploadedDocument {
   createdAt: string;
 }
 
+interface UploadResult {
+  status: 'success' | 'error';
+  document?: UploadedDocument;
+  filename?: string;
+  error?: string;
+}
+
 interface UploadPolicyResponse {
   message: string;
-  document: UploadedDocument;
+  policy: {
+    id: string;
+    name: string;
+  };
+  results: UploadResult[];
+  summary: {
+    totalFiles: number;
+    successful: number;
+    failed: number;
+  };
+  documents: UploadedDocument[];
   policySummary?: unknown;
 }
 
