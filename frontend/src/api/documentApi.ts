@@ -15,7 +15,7 @@ interface UploadResult {
   error?: string;
 }
 
-interface UploadPolicyResponse {
+export interface UploadPolicyResponse {
   message: string;
   policy: {
     id: string;

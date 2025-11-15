@@ -1,12 +1,13 @@
 import { FileUpload } from "../components/upload/FileUpload";
-import { documentApi } from "../api/documentApi";
+import { UploadSuccess } from "../components/upload/UploadSuccess";
+import { documentApi, type UploadPolicyResponse } from "../api/documentApi";
 import { policyApi } from "../api/policyApi";
 import { Input } from "../components/common/Input";
 import { Button } from "../components/common/Button";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
-type Step = 'create' | 'upload';
+type Step = 'create' | 'upload' | 'success';
 
 export function UploadPage() {
     const [step, setStep] = useState<Step>('create');
@@ -17,6 +18,7 @@ export function UploadPage() {
     const [isCreatingPolicy, setIsCreatingPolicy] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [uploadResponse, setUploadResponse] = useState<UploadPolicyResponse | null>(null);
 
     const handleCreatePolicy = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -50,13 +52,21 @@ export function UploadPage() {
         setError(null);
 
         try {
-            await documentApi.uploadPolicy(files, createdPolicyId);
+            const response = await documentApi.uploadPolicy(files, createdPolicyId);
+            setUploadResponse(response);
+            setStep('success');
         } catch (err) {
             console.error('Error uploading files:', err);
             throw err;
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleUploadMore = () => {
+        setUploadResponse(null);
+        setError(null);
+        setStep('upload');
     };
 
     const handleBack = () => {
@@ -118,6 +128,20 @@ export function UploadPage() {
                         </div>
                     </form>
                 </section>
+            </div>
+        );
+    }
+
+    if (step === 'success' && uploadResponse) {
+        return (
+            <div className="max-w-4xl mx-auto">
+                <UploadSuccess
+                    policyId={uploadResponse.policy.id}
+                    policyName={uploadResponse.policy.name}
+                    summary={uploadResponse.summary}
+                    results={uploadResponse.results}
+                    onUploadMore={handleUploadMore}
+                />
             </div>
         );
     }
