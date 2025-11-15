@@ -227,9 +227,7 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-/**
- * Get policy summary for a specific document
- */
+
 export const getPolicySummary = async (req: Request, res: Response): Promise<void> => {
   try {
     const { policyId } = req.params;
@@ -257,12 +255,12 @@ export const getPolicySummary = async (req: Request, res: Response): Promise<voi
 
     const summaryResult = await db.query(summaryQuery, [policyId, userId]);
 
-    const summaryRow = summaryResult.rows[0];
-
-    if(summaryRow.length === 0){
-      res.status(404).json({ error: 'No summary available'})
+    if(summaryResult.rows.length === 0){
+      res.status(404).json({ error: "no summary available"})
       return
     }
+
+    const summaryRow = summaryResult.rows[0];
 
     const summaryData = typeof summaryRow.summary_data === 'string'
       ? JSON.parse(summaryRow.summary_data)
