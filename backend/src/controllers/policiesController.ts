@@ -2,6 +2,8 @@
 import { Request, Response } from 'express'
 import { db } from '../db/db'
 import { deleteChunksByPolicyId } from '../services/vectorService'
+import { extractPolicySummary } from '../services/extractionService'
+import { PolicySummary } from '../types/policySummary'
 
 export const createPolicy = async (req: Request, res: Response) => {
 
@@ -222,3 +224,130 @@ export const getPolicies = async (req: Request, res: Response): Promise<void> =>
       });
     }
   };
+
+/**
+ * Extract and save policy summary from all documents in a policy
+ * This function aggregates text from all documents and extracts a summary
+ * @param policyId - The policy ID
+ * @param userId - The user ID (for authorization)
+ * @returns The extracted policy summary
+ * @throws Error if policy not found, no documents, or extraction fails
+ */
+export async function extractAndSavePolicySummary(
+  policyId: string,
+  userId: string
+): Promise<PolicySummary> {
+  // Verify policy exists and belongs to user
+  const policyCheck = await db.query(
+    `SELECT id, name FROM policies WHERE id = $1 AND user_id = $2`,
+    [policyId, userId]
+  );
+
+  if (policyCheck.rows.length === 0) {
+    throw new Error('Policy not found or access denied');
+  }
+
+  // Fetch all documents for this policy
+  const policyDocumentsResult = await db.query(
+    `
+      SELECT id, filename, extracted_text, page_count, document_type, created_at
+      FROM documents
+      WHERE policy_id = $1 AND user_id = $2
+      ORDER BY created_at ASC
+    `,
+    [policyId, userId]
+  );
+
+  if (policyDocumentsResult.rows.length === 0) {
+    throw new Error('No documents found for this policy');
+  }
+
+  // Aggregate text from all documents
+  const aggregatedText = policyDocumentsResult.rows
+    .map((docRow) => `Document: ${docRow.filename}\n\n${docRow.extracted_text}`)
+    .join('\n\n------------------------------\n\n');
+
+  // Calculate total page count
+  const aggregatedPageCount = policyDocumentsResult.rows.reduce<number>((sum, docRow) => {
+    const pages = typeof docRow.page_count === 'number' ? docRow.page_count : 0;
+    return sum + pages;
+  }, 0);
+
+  // Use the first document ID for summary tracking
+  const firstDocumentId = policyDocumentsResult.rows[0].id;
+
+  // Extract policy summary using LLM
+  const policySummary = await extractPolicySummary(
+    aggregatedText,
+    firstDocumentId,
+    policyId,
+    aggregatedPageCount
+  );
+
+  // Save policy summary to database
+  const summaryInsertQuery = `
+    INSERT INTO policy_summaries (policy_id, document_id, summary_data)
+    VALUES ($1, $2, $3)
+    ON CONFLICT (policy_id)
+    DO UPDATE SET
+      summary_data = EXCLUDED.summary_data,
+      document_id = EXCLUDED.document_id,
+      updated_at = now()
+    RETURNING id, created_at, updated_at
+  `;
+
+  await db.query(summaryInsertQuery, [
+    policyId,
+    firstDocumentId,
+    JSON.stringify(policySummary),
+  ]);
+
+  return policySummary;
+}
+
+/**
+ * Re-extract policy summary endpoint
+ * Triggers a fresh extraction of the policy summary from all documents
+ */
+export const reExtractPolicySummary = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { policyId } = req.params;
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    if (!policyId) {
+      res.status(400).json({ error: 'Policy ID is required' });
+      return;
+    }
+
+    // Extract and save the policy summary
+    const policySummary = await extractAndSavePolicySummary(policyId, userId);
+
+    res.status(200).json({
+      message: 'Policy summary extracted successfully',
+      summary: policySummary,
+    });
+  } catch (error) {
+    console.error('Error re-extracting policy summary:', error);
+    
+    if (error instanceof Error) {
+      if (error.message === 'Policy not found or access denied') {
+        res.status(404).json({ error: 'Policy not found' });
+        return;
+      }
+      if (error.message === 'No documents found for this policy') {
+        res.status(400).json({ error: 'No documents found for this policy' });
+        return;
+      }
+    }
+
+    res.status(500).json({
+      error: 'Failed to extract policy summary',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};

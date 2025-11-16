@@ -45,7 +45,17 @@ async function getPolicies(): Promise<GetPoliciesResponse> {
   return apiClient.get<GetPoliciesResponse>('/policies')
 }
 
+interface ReExtractSummaryResponse {
+  message: string;
+  summary: unknown;
+}
+
+async function reExtractPolicySummary(policyId: string): Promise<ReExtractSummaryResponse> {
+  return apiClient.post<ReExtractSummaryResponse>(`/policies/${policyId}/summary/extract`);
+}
+
 export const policyApi = {
   createPolicy,
-  getPolicies
+  getPolicies,
+  reExtractPolicySummary,
 };

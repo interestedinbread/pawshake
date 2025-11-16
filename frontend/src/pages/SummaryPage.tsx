@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { documentApi } from '../api/documentApi';
-import { SelectPolicy } from '../components/policy/selectPolicy';
+import { policyApi } from '../api/policyApi';
+import { SelectPolicy } from '../components/policy/SelectPolicy';
 import { SummaryHeader } from '../components/policy/SummaryHeader';
 import { FinancialDetails } from '../components/policy/FinancialDetails';
 import { WaitingPeriods } from '../components/policy/WaitingPeriods';
@@ -98,7 +99,10 @@ export function SummaryPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await documentApi.getPolicySummary(policyId!);
+      // Trigger re-extraction of the policy summary
+      await policyApi.reExtractPolicySummary(policyId);
+      // Fetch the newly extracted summary
+      const response = await documentApi.getPolicySummary(policyId);
       setSummary(response.summary as PolicySummaryData);
       setMetadata(response.metadata);
     } catch (err) {
@@ -164,6 +168,7 @@ export function SummaryPage() {
         confidence={overallConfidence}
         onRefresh={handleRefresh}
         onDownload={handleDownload}
+        isRefreshing={loading}
       />
 
       {error && (

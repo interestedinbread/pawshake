@@ -1,4 +1,4 @@
-import { createPolicy, updatePolicyName, getPolicies, deletePolicy } from "../controllers/policiesController";
+import { createPolicy, updatePolicyName, getPolicies, deletePolicy, reExtractPolicySummary } from "../controllers/policiesController";
 import { getPolicyDocuments, getPolicySummary } from "../controllers/documentController";
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
@@ -13,6 +13,9 @@ router.post('/', authenticateToken, createPolicy);
 
 // Get policy summary
 router.get('/:policyId/summary', authenticateToken, getPolicySummary);
+
+// Re-extract policy summary
+router.post('/:policyId/summary/extract', authenticateToken, reExtractPolicySummary);
 
 // Get documents in a policy
 router.get('/:policyId/documents', authenticateToken, getPolicyDocuments);

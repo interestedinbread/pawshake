@@ -9,6 +9,7 @@ interface SummaryHeaderProps {
   confidence?: 'high' | 'medium' | 'low' | null;
   onRefresh?: () => void;
   onDownload?: () => void;
+  isRefreshing?: boolean;
 }
 
 export function SummaryHeader({
@@ -19,6 +20,7 @@ export function SummaryHeader({
   confidence,
   onRefresh,
   onDownload,
+  isRefreshing = false,
 }: SummaryHeaderProps) {
   const displayPlan = planName || 'Policy summary';
   const displayInsurer = insurer || 'Insurer unknown';
@@ -48,6 +50,7 @@ export function SummaryHeader({
               size="sm"
               onClick={onRefresh}
               disabled={!onRefresh}
+              isLoading={isRefreshing}
             >
               Refresh summary
             </Button>

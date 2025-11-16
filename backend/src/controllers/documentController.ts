@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { extractTextFromPDF } from '../services/documentServices';
 import { chunkDocument } from '../services/chunkingService';
 import { storeChunks, deleteChunksByDocumentId } from '../services/vectorService';
-import { extractPolicySummary } from '../services/extractionService';
+import { extractAndSavePolicySummary } from './policiesController';
 import { db } from '../db/db';
 
 export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
@@ -131,8 +131,7 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
       }
     }
 
-    
-    // Fetch all documents for this policy to build aggregated summary context
+    // Fetch all documents for this policy (for response and summary extraction)
     const policyDocumentsResult = await db.query(
       `
         SELECT id, filename, extracted_text, page_count, document_type, created_at
@@ -143,50 +142,11 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
       [policyId, userId]
     );
 
-    const aggregatedText = policyDocumentsResult.rows
-      .map((docRow) => `Document: ${docRow.filename}\n\n${docRow.extracted_text}`)
-      .join('\n\n------------------------------\n\n');
-
-    const aggregatedPageCount = policyDocumentsResult.rows.reduce<number>((sum, docRow) => {
-      const pages = typeof docRow.page_count === 'number' ? docRow.page_count : 0;
-      return sum + pages;
-    }, 0);
-
     // Extract policy summary (non-blocking - if it fails, upload still succeeds)
-    // Use the first document from the policy for summary tracking
-    const firstDocumentId = policyDocumentsResult.rows.length > 0 
-      ? policyDocumentsResult.rows[0].id 
-      : null;
-    
     let policySummary = null;
-    if (firstDocumentId && aggregatedText) {
+    if (policyDocumentsResult.rows.length > 0) {
       try {
-        policySummary = await extractPolicySummary(
-          aggregatedText,
-          firstDocumentId,
-          policyId,
-          aggregatedPageCount
-        );
-
-        // Save policy summary to database (policy-level)
-        if (policySummary) {
-          const summaryInsertQuery = `
-            INSERT INTO policy_summaries (policy_id, document_id, summary_data)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (policy_id)
-            DO UPDATE SET
-              summary_data = EXCLUDED.summary_data,
-              document_id = EXCLUDED.document_id,
-              updated_at = now()
-            RETURNING id, created_at, updated_at
-          `;
-
-          await db.query(summaryInsertQuery, [
-            policyId,
-            firstDocumentId,
-            JSON.stringify(policySummary),
-          ]);
-        }
+        policySummary = await extractAndSavePolicySummary(policyId, userId);
       } catch (extractionError) {
         // Log error but don't fail the upload
         console.warn('Policy extraction failed (document upload still succeeded):', extractionError);
