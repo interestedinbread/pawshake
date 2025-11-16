@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { documentApi } from '../api/documentApi';
+import { SelectPolicy } from '../components/policy/selectPolicy';
 import { SummaryHeader } from '../components/policy/SummaryHeader';
 import { FinancialDetails } from '../components/policy/FinancialDetails';
 import { WaitingPeriods } from '../components/policy/WaitingPeriods';
@@ -54,7 +55,7 @@ export function SummaryPage() {
     const id = policyId;
 
     if (!id) {
-      setError('No document selected. Upload a policy or choose one from your documents.');
+      // No policy selected yet; SelectPolicy will handle prompting the user
       return;
     }
 
@@ -117,20 +118,13 @@ export function SummaryPage() {
   };
 
   if (!policyId) {
+    // No policy ID in URL: let the user choose a policy first
     return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-800">
-        <p className="font-medium">No policy selected.</p>
-        <p className="text-sm">Upload a policy or open one from your documents to view its summary.</p>
-        <div className="mt-4 flex gap-3">
-          <Button variant="primary" size="sm" onClick={() => navigate('/upload')}>
-            Upload policy
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/')}
-          >
-            Go to dashboard
-          </Button>
-        </div>
-      </div>
+      <SelectPolicy
+        onSelect={(id) => {
+          navigate(`/summary?policyId=${encodeURIComponent(id)}`);
+        }}
+      />
     );
   }
 
