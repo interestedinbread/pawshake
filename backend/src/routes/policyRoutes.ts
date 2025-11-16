@@ -1,5 +1,5 @@
-import { createPolicy, updatePolicyName, deletePolicy } from "../controllers/policiesController";
-import { getPolicies, getPolicyDocuments, getPolicySummary } from "../controllers/documentController";
+import { createPolicy, updatePolicyName, getPolicies, deletePolicy } from "../controllers/policiesController";
+import { getPolicyDocuments, getPolicySummary } from "../controllers/documentController";
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
 

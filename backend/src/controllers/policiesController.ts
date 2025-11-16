@@ -159,3 +159,66 @@ export const deletePolicy = async (req: Request, res:Response) => {
         })
     }
 }
+
+export const getPolicies = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.userId;
+  
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+  
+      const policiesQuery = `
+        SELECT
+          p.id,
+          p.name,
+          p.description,
+          p.created_at,
+          p.updated_at,
+          COUNT(d.id) AS document_count,
+          MAX(d.created_at) AS last_document_at,
+          ps.updated_at AS summary_updated_at,
+          ps.summary_data
+        FROM policies p
+        LEFT JOIN documents d ON d.policy_id = p.id AND d.user_id = p.user_id
+        LEFT JOIN policy_summaries ps ON ps.policy_id = p.id
+        WHERE p.user_id = $1
+        GROUP BY p.id, ps.updated_at, ps.summary_data
+        ORDER BY p.created_at DESC
+      `;
+  
+      const policiesResult = await db.query(policiesQuery, [userId]);
+  
+      const policies = policiesResult.rows.map((row) => {
+        const summaryData = row.summary_data
+          ? typeof row.summary_data === 'string'
+            ? JSON.parse(row.summary_data)
+            : row.summary_data
+          : null;
+  
+        const overallConfidence = summaryData?.confidence?.overall ?? null;
+  
+        return {
+          id: row.id,
+          name: row.name,
+          description: row.description,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+          documentCount: Number(row.document_count ?? 0),
+          lastDocumentAt: row.last_document_at ?? null,
+          summaryUpdatedAt: row.summary_updated_at ?? null,
+          summaryConfidence: overallConfidence,
+          hasSummary: Boolean(summaryData),
+        };
+      });
+  
+      res.status(200).json({ policies });
+    } catch (error) {
+      console.error('Error fetching policies:', error);
+      res.status(500).json({
+        error: 'Failed to fetch policies',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  };
