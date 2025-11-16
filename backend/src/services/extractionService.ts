@@ -43,11 +43,18 @@ export async function extractPolicySummary(
     const extractionPrompt = buildExtractionPrompt(documentText);
 
     // Step 2: Request structured extraction from LLM
+    // gpt-4o-mini supports ~128k tokens, so we can safely use much more text
+    // Use up to 100k characters (roughly ~25k tokens) to ensure we capture all documents
+    const maxChars = 100000;
+    const truncatedText = documentText.length > maxChars 
+      ? documentText.substring(0, maxChars) + '\n\n[... document truncated due to length ...]'
+      : documentText;
+    
     const response = await extractionModel.invoke([
       { role: 'system', content: extractionPrompt },
       { 
         role: 'user', 
-        content: `Extract the policy information from the following document. Return ONLY valid JSON matching the PolicySummary schema:\n\n${documentText.substring(0, 20000)}` // Limit to avoid token limits
+        content: `Extract the policy information from the following document(s). The text may contain multiple related documents concatenated together. Look for the most complete and authoritative information across all documents. Return ONLY valid JSON matching the PolicySummary schema:\n\n${truncatedText}`
       },
     ]);
 
@@ -86,7 +93,7 @@ export async function extractPolicySummary(
  * Build the extraction prompt with few-shot examples
  */
 function buildExtractionPrompt(documentText: string): string {
-  return `You are an expert at extracting structured information from pet insurance policy documents.
+  return `You are an expert at extracting structured information from pet insurance policy documents. You may receive text from multiple related documents (e.g., policy documents, declarations pages, coverage summaries). When information appears in multiple documents, prioritize the most authoritative source (typically declarations pages or policy summaries).
 
 Your task is to extract policy information and return it as a JSON object matching this exact schema:
 {

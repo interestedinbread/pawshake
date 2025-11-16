@@ -262,8 +262,26 @@ export async function extractAndSavePolicySummary(
     throw new Error('No documents found for this policy');
   }
 
-  // Aggregate text from all documents
-  const aggregatedText = policyDocumentsResult.rows
+  // Prioritize documents: put declarations pages and similar key documents first
+  const sortedDocuments = [...policyDocumentsResult.rows].sort((a, b) => {
+    const aFilename = a.filename.toLowerCase();
+    const bFilename = b.filename.toLowerCase();
+    
+    // Prioritize documents with "declaration", "summary", "coverage", "policy" in filename
+    const priorityKeywords = ['declaration', 'summary', 'coverage', 'policy'];
+    const aPriority = priorityKeywords.some(keyword => aFilename.includes(keyword)) ? 0 : 1;
+    const bPriority = priorityKeywords.some(keyword => bFilename.includes(keyword)) ? 0 : 1;
+    
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority; // Lower priority number = higher priority
+    }
+    
+    // If same priority, keep original order (by created_at)
+    return 0;
+  });
+
+  // Aggregate text from all documents (prioritized order)
+  const aggregatedText = sortedDocuments
     .map((docRow) => `Document: ${docRow.filename}\n\n${docRow.extracted_text}`)
     .join('\n\n------------------------------\n\n');
 
