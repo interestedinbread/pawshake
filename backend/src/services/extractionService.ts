@@ -280,9 +280,15 @@ async function addSourceCitations(
         const chunks = await querySimilarChunks(field.query, 3, undefined, policyId);
         if (chunks.length > 0) {
           // Filter by similarity threshold and limit to top N
-          const citationChunks = chunks
+          // Note: ChromaDB uses cosine distance (0-2 range), so threshold may need adjustment
+          let citationChunks = chunks
             .filter((chunk) => chunk.distance < CITATION_SIMILARITY_THRESHOLD)
             .slice(0, MAX_CITATIONS_PER_FIELD);
+
+          // Fallback: If no chunks pass the threshold, show at least the top 1 most relevant chunk
+          if (citationChunks.length === 0 && chunks[0]) {
+            citationChunks = [chunks[0]]; // Top result is always most similar
+          }
 
           if (citationChunks.length > 0) {
             sources[field.key] = citationChunks.map(chunk => {

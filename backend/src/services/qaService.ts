@@ -67,9 +67,16 @@ export async function answerQuestion(
 
     // Step 2: Filter chunks for citations (keep all for context, but only show relevant ones)
     // Filter by similarity threshold and limit to top N
-    const citationChunks = relevantChunks
+    // Note: ChromaDB uses cosine distance (0-2 range), so threshold may need adjustment
+    let citationChunks = relevantChunks
       .filter((chunk) => chunk.distance < CITATION_SIMILARITY_THRESHOLD)
       .slice(0, MAX_CITATIONS);
+
+    // Fallback: If no chunks pass the threshold, show at least the top 1 most relevant chunk
+    // This ensures users always see at least one citation when an answer is provided
+    if (citationChunks.length === 0 && relevantChunks.length > 0 && relevantChunks[0]) {
+      citationChunks = [relevantChunks[0]]; // Top result is always most similar
+    }
 
     // Step 3: Build context from all retrieved chunks (for LLM)
     const context = relevantChunks
