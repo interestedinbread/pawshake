@@ -13,6 +13,13 @@ const chatModel = new ChatOpenAI({
   temperature: 0.3, // Lower temperature for more factual, consistent answers
 });
 
+// Similarity threshold for filtering citations
+// Lower distance = higher similarity (0 = identical, 1 = completely different)
+// Only show citations with distance < this threshold
+const CITATION_SIMILARITY_THRESHOLD = 0.4;
+// Maximum number of citations to show (even if more pass the threshold)
+const MAX_CITATIONS = 2;
+
 export interface QAResponse {
   answer: string;
   sources: SourceCitation[];
@@ -48,6 +55,7 @@ export async function answerQuestion(
     }
 
     // Step 1: Retrieve relevant chunks from vector database
+    // Retrieve more chunks for context (helps LLM), but filter for citations
     const relevantChunks = await querySimilarChunks(question, nResults, documentId, policyId);
 
     if (relevantChunks.length === 0) {
@@ -57,7 +65,13 @@ export async function answerQuestion(
       };
     }
 
-    // Step 2: Build context from retrieved chunks
+    // Step 2: Filter chunks for citations (keep all for context, but only show relevant ones)
+    // Filter by similarity threshold and limit to top N
+    const citationChunks = relevantChunks
+      .filter((chunk) => chunk.distance < CITATION_SIMILARITY_THRESHOLD)
+      .slice(0, MAX_CITATIONS);
+
+    // Step 3: Build context from all retrieved chunks (for LLM)
     const context = relevantChunks
       .map((chunk, index) => {
         const pageInfo = chunk.pageNumber ? ` (Page ${chunk.pageNumber})` : '';
@@ -65,7 +79,7 @@ export async function answerQuestion(
       })
       .join('\n\n---\n\n');
 
-    // Step 3: Build system prompt with instructions for citing sources
+    // Step 4: Build system prompt with instructions for citing sources
     const systemPrompt = `You are a helpful assistant that answers questions about pet insurance policies. 
 Your answers should be:
 - Accurate and based only on the provided policy context
@@ -79,7 +93,7 @@ Do not make up information that isn't in the provided context.
 Policy Context:
 ${context}`;
 
-    // Step 4: Generate answer using ChatOpenAI
+    // Step 5: Generate answer using ChatOpenAI
     const response = await chatModel.invoke([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: question },
@@ -87,8 +101,8 @@ ${context}`;
 
     const answer = response.content as string;
 
-    // Step 5: Format source citations
-    const sources: SourceCitation[] = relevantChunks.map((chunk) => {
+    // Step 6: Format source citations (only from filtered chunks)
+    const sources: SourceCitation[] = citationChunks.map((chunk) => {
       const citation: SourceCitation = {
         text: chunk.text,
         chunkIndex: chunk.chunkIndex,

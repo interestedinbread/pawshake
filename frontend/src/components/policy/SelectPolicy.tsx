@@ -85,9 +85,9 @@ export function SelectPolicy({ onSelect }: SelectPolicyProps) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
       <header className="space-y-1">
-        <h2 className="text-xl font-semibold text-slate-900">Choose a policy to view</h2>
+        <h2 className="text-xl font-semibold text-slate-900">Choose a policy</h2>
         <p className="text-sm text-slate-600">
-          Select one of your policy bundles to see its consolidated summary.
+          Select one of your policy bundles below to proceed.
         </p>
       </header>
 
@@ -115,7 +115,7 @@ export function SelectPolicy({ onSelect }: SelectPolicyProps) {
               size="sm"
               onClick={() => onSelect(policy.id)}
             >
-              View summary
+              OK
             </Button>
           </div>
         ))}

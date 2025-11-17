@@ -257,6 +257,12 @@ async function addSourceCitations(
 ): Promise<Partial<PolicySummary>> {
   const sources: { [key: string]: Array<{ pageNumber?: number; chunkId?: string; textSnippet?: string }> } = {};
 
+  // Similarity threshold for filtering citations
+  // Lower distance = higher similarity (0 = identical, 1 = completely different)
+  const CITATION_SIMILARITY_THRESHOLD = 0.4;
+  // Maximum number of citations to show per field
+  const MAX_CITATIONS_PER_FIELD = 2;
+
   // Verify and get citations for key fields
   const fieldsToVerify = [
     { key: 'deductible', query: 'deductible amount annual per incident' },
@@ -270,23 +276,31 @@ async function addSourceCitations(
     if (summary[field.key as keyof PolicySummary] !== null && 
         summary[field.key as keyof PolicySummary] !== undefined) {
       try {
+        // Retrieve chunks for context (helps with verification)
         const chunks = await querySimilarChunks(field.query, 3, undefined, policyId);
         if (chunks.length > 0) {
-          sources[field.key] = chunks.map(chunk => {
-            const source: { pageNumber?: number; chunkId?: string; textSnippet?: string } = {
-              textSnippet: chunk.text.substring(0, 200), // First 200 chars
-            };
-            
-            if (chunk.pageNumber !== undefined) {
-              source.pageNumber = chunk.pageNumber;
-            }
-            
-            if (chunk.documentId) {
-              source.chunkId = chunk.documentId;
-            }
-            
-            return source;
-          });
+          // Filter by similarity threshold and limit to top N
+          const citationChunks = chunks
+            .filter((chunk) => chunk.distance < CITATION_SIMILARITY_THRESHOLD)
+            .slice(0, MAX_CITATIONS_PER_FIELD);
+
+          if (citationChunks.length > 0) {
+            sources[field.key] = citationChunks.map(chunk => {
+              const source: { pageNumber?: number; chunkId?: string; textSnippet?: string } = {
+                textSnippet: chunk.text.substring(0, 200), // First 200 chars
+              };
+              
+              if (chunk.pageNumber !== undefined) {
+                source.pageNumber = chunk.pageNumber;
+              }
+              
+              if (chunk.documentId) {
+                source.chunkId = chunk.documentId;
+              }
+              
+              return source;
+            });
+          }
         }
       } catch (error) {
         // If RAG fails, continue without sources for this field
