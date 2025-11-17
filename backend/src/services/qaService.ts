@@ -13,16 +13,9 @@ const chatModel = new ChatOpenAI({
   temperature: 0.3, // Lower temperature for more factual, consistent answers
 });
 
-// Similarity threshold for filtering citations
-// Lower distance = higher similarity (0 = identical, 1 = completely different)
-// Only show citations with distance < this threshold
-const CITATION_SIMILARITY_THRESHOLD = 0.4;
-// Maximum number of citations to show (even if more pass the threshold)
-const MAX_CITATIONS = 2;
-
 export interface QAResponse {
   answer: string;
-  sources: SourceCitation[];
+  sources: SourceCitation[]; // Kept for backward compatibility, but will be empty
 }
 
 export interface SourceCitation {
@@ -55,7 +48,6 @@ export async function answerQuestion(
     }
 
     // Step 1: Retrieve relevant chunks from vector database
-    // Retrieve more chunks for context (helps LLM), but filter for citations
     const relevantChunks = await querySimilarChunks(question, nResults, documentId, policyId);
 
     if (relevantChunks.length === 0) {
@@ -65,20 +57,8 @@ export async function answerQuestion(
       };
     }
 
-    // Step 2: Filter chunks for citations (keep all for context, but only show relevant ones)
-    // Filter by similarity threshold and limit to top N
-    // Note: ChromaDB uses cosine distance (0-2 range), so threshold may need adjustment
-    let citationChunks = relevantChunks
-      .filter((chunk) => chunk.distance < CITATION_SIMILARITY_THRESHOLD)
-      .slice(0, MAX_CITATIONS);
-
-    // Fallback: If no chunks pass the threshold, show at least the top 1 most relevant chunk
-    // This ensures users always see at least one citation when an answer is provided
-    if (citationChunks.length === 0 && relevantChunks.length > 0 && relevantChunks[0]) {
-      citationChunks = [relevantChunks[0]]; // Top result is always most similar
-    }
-
-    // Step 3: Build context from all retrieved chunks (for LLM)
+    // Step 2: Build context from retrieved chunks (for LLM)
+    // Include page numbers so LLM can reference them
     const context = relevantChunks
       .map((chunk, index) => {
         const pageInfo = chunk.pageNumber ? ` (Page ${chunk.pageNumber})` : '';
@@ -86,13 +66,16 @@ export async function answerQuestion(
       })
       .join('\n\n---\n\n');
 
-    // Step 4: Build system prompt with instructions for citing sources
+    // Step 3: Build system prompt with instructions to include page references
     const systemPrompt = `You are a helpful assistant that answers questions about pet insurance policies. 
 Your answers should be:
 - Accurate and based only on the provided policy context
 - Clear and easy to understand
 - Include specific details like dollar amounts, percentages, and time periods when available
-- Cite which source(s) you used by referencing "Source 1", "Source 2", etc.
+
+IMPORTANT: At the end of your answer, add a brief note suggesting which page(s) the user should refer to for more details. 
+For example: "For more details, refer to page X of your policy document" or "This information can be found on page X."
+Use the page numbers from the sources provided in the context. If multiple pages are relevant, mention the most important one or two.
 
 If the provided context doesn't contain enough information to fully answer the question, say so honestly.
 Do not make up information that isn't in the provided context.
@@ -100,7 +83,7 @@ Do not make up information that isn't in the provided context.
 Policy Context:
 ${context}`;
 
-    // Step 5: Generate answer using ChatOpenAI
+    // Step 4: Generate answer using ChatOpenAI
     const response = await chatModel.invoke([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: question },
@@ -108,33 +91,10 @@ ${context}`;
 
     const answer = response.content as string;
 
-    // Step 6: Format source citations (only from filtered chunks)
-    const sources: SourceCitation[] = citationChunks.map((chunk) => {
-      const citation: SourceCitation = {
-        text: chunk.text,
-        chunkIndex: chunk.chunkIndex,
-        similarity: chunk.distance, // Lower distance = higher similarity
-      };
-      
-      // Only include optional properties if they exist
-      if (chunk.pageNumber !== undefined) {
-        citation.pageNumber = chunk.pageNumber;
-      }
-      
-      if (chunk.documentId) {
-        citation.documentId = chunk.documentId;
-      }
-
-      if (chunk.policyId) {
-        citation.policyId = chunk.policyId;
-      }
-      
-      return citation;
-    });
-
+    // Step 5: Return answer without text citations (LLM includes page references in answer)
     return {
       answer,
-      sources,
+      sources: [], // No longer returning text citations
     };
   } catch (error) {
     throw new Error(

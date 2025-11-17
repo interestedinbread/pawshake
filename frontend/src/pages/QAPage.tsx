@@ -55,7 +55,6 @@ export function QAPage() {
             id: `assistant-${Date.now()}`,
             role: 'assistant',
             content: response.answer,
-            sources: response.sources,
             timestamp: new Date(),
           };
         }

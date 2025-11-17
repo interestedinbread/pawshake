@@ -291,21 +291,22 @@ async function addSourceCitations(
           }
 
           if (citationChunks.length > 0) {
-            sources[field.key] = citationChunks.map(chunk => {
-              const source: { pageNumber?: number; chunkId?: string; textSnippet?: string } = {
-                textSnippet: chunk.text.substring(0, 200), // First 200 chars
-              };
-              
-              if (chunk.pageNumber !== undefined) {
-                source.pageNumber = chunk.pageNumber;
-              }
-              
-              if (chunk.documentId) {
-                source.chunkId = chunk.documentId;
-              }
-              
-              return source;
-            });
+            // Simplified citations: only include page numbers (no text snippets)
+            sources[field.key] = citationChunks
+              .filter((chunk) => chunk.pageNumber !== undefined) // Only include chunks with page numbers
+              .map(chunk => {
+                const source: { pageNumber?: number; chunkId?: string; textSnippet?: string } = {};
+                
+                if (chunk.pageNumber !== undefined) {
+                  source.pageNumber = chunk.pageNumber;
+                }
+                
+                if (chunk.documentId) {
+                  source.chunkId = chunk.documentId;
+                }
+                
+                return source;
+              });
           }
         }
       } catch (error) {
