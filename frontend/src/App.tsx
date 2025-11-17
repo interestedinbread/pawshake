@@ -6,6 +6,7 @@ import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { UploadPage } from './pages/UploadPage';
 import { SummaryPage } from './pages/SummaryPage';
+import { QAPage } from './pages/QAPage';
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
@@ -60,6 +61,17 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <SummaryPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+          />
+
+        <Route 
+          path="/qa"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <QAPage />
               </Layout>
             </ProtectedRoute>
           }
