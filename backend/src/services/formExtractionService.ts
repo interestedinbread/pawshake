@@ -121,7 +121,7 @@ export async function getTrupanionFormSchema(): Promise<FormSchema> {
  */
 export async function fillForm(
   pdfBuffer: Buffer,
-  formData: Record<string, string | boolean | number>
+  formData: Record<string, string | boolean | number | undefined>
 ): Promise<Buffer> {
   try {
     const pdfDoc = await PDFDocument.load(pdfBuffer);
