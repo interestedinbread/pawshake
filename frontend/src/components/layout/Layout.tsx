@@ -12,6 +12,7 @@ const navLinks = [
   { label: 'Upload', to: '/upload' },
   { label: 'Summary', to: '/summary' },
   { label: 'Q&A', to: '/qa' },
+  { label: 'Claims', to: '/claims'}
 ];
 
 export function Layout({ children }: LayoutProps) {
