@@ -31,13 +31,6 @@ const actions: ActionItem[] = [
     route: '/qa',
     variant: 'outline',
   },
-  {
-    title: 'Start Trupanion claim draft',
-    description: 'Begin the guided claim flow tailored for Trupanion policies.',
-    icon: '🚀',
-    route: '/claims/trupanion',
-    variant: 'outline',
-  },
 ];
 
 export function QuickActionsCard() {
