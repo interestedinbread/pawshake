@@ -1,4 +1,4 @@
-import { createPolicy, updatePolicyName, getPolicies, deletePolicy, reExtractPolicySummary } from "../controllers/policiesController";
+import { createPolicy, updatePolicyName, getPolicies, deletePolicy, reExtractPolicySummary, comparePolicies } from "../controllers/policiesController";
 import { getPolicyDocuments, getPolicySummary } from "../controllers/documentController";
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
@@ -7,6 +7,9 @@ const router = Router()
 
 // List all policies for authenticated user
 router.get('/', authenticateToken, getPolicies);
+
+// Compare policies
+router.get('/compare', authenticateToken, comparePolicies);
 
 // Create a new policy
 router.post('/', authenticateToken, createPolicy);

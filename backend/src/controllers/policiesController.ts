@@ -4,6 +4,7 @@ import { db } from '../db/db'
 import { deleteChunksByPolicyId } from '../services/vectorService'
 import { extractPolicySummary } from '../services/extractionService'
 import { PolicySummary } from '../types/policySummary'
+import type { ComparisonResponse, PolicyComparisonItem } from '../types/comparison'
 
 export const createPolicy = async (req: Request, res: Response) => {
 
@@ -366,6 +367,133 @@ export const reExtractPolicySummary = async (req: Request, res: Response): Promi
     res.status(500).json({
       error: 'Failed to extract policy summary',
       message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const comparePolicies = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    // Get policy IDs from query parameters
+    const { policyId1, policyId2 } = req.query as {
+      policyId1?: string;
+      policyId2?: string;
+    };
+
+    if (!policyId1 || !policyId2) {
+      res.status(400).json({
+        error: 'Both policy IDs are required',
+        message: 'Provide policyId1 and policyId2 as query parameters',
+      });
+      return;
+    }
+
+    // Validate both policies are different
+    if (policyId1 === policyId2) {
+      res.status(400).json({
+        error: 'Policy IDs must be different',
+        message: 'Cannot compare a policy to itself',
+      });
+      return;
+    }
+
+    // Verify both policies exist and belong to user
+    const policyCheckQuery = `
+      SELECT id, name, description, created_at, updated_at
+      FROM policies
+      WHERE id IN ($1, $2) AND user_id = $3
+    `;
+
+    const policyCheckResult = await db.query(policyCheckQuery, [policyId1, policyId2, userId]);
+
+    if (policyCheckResult.rows.length !== 2) {
+      // Check which policy is missing
+      const foundIds = policyCheckResult.rows.map((row) => row.id);
+      const missingIds = [policyId1, policyId2].filter((id) => !foundIds.includes(id));
+
+      res.status(404).json({
+        error: 'Policy not found or access denied',
+        message: `The following policy IDs were not found or you don't have access: ${missingIds.join(', ')}`,
+      });
+      return;
+    }
+
+    // Fetch policy summaries for both policies
+    const summaryQuery = `
+      SELECT 
+        ps.policy_id,
+        ps.summary_data,
+        ps.created_at AS summary_created_at,
+        ps.updated_at AS summary_updated_at,
+        p.name AS policy_name
+      FROM policy_summaries ps
+      INNER JOIN policies p ON ps.policy_id = p.id
+      WHERE ps.policy_id IN ($1, $2) AND p.user_id = $3
+    `;
+
+    const summaryResult = await db.query(summaryQuery, [policyId1, policyId2, userId]);
+
+    // Build response with policy data
+    const policies: PolicyComparisonItem[] = policyCheckResult.rows.map((policyRow) => {
+      const summaryRow = summaryResult.rows.find((row) => row.policy_id === policyRow.id);
+
+      const summaryData = summaryRow?.summary_data
+        ? typeof summaryRow.summary_data === 'string'
+          ? JSON.parse(summaryRow.summary_data)
+          : summaryRow.summary_data
+        : null;
+
+      const overallConfidence = summaryData?.confidence?.overall ?? null;
+
+      const item: PolicyComparisonItem = {
+        id: policyRow.id,
+        name: policyRow.name,
+        description: policyRow.description,
+        createdAt: policyRow.created_at,
+        updatedAt: policyRow.updated_at,
+        summary: summaryData,
+        summaryMetadata: summaryRow
+          ? {
+              createdAt: summaryRow.summary_created_at,
+              updatedAt: summaryRow.summary_updated_at,
+              confidence: overallConfidence,
+            }
+          : null,
+        hasSummary: Boolean(summaryData),
+      };
+
+      return item;
+    });
+
+    // Check if both policies have summaries
+    const policiesWithoutSummaries = policies.filter((p) => !p.hasSummary);
+    if (policiesWithoutSummaries.length > 0) {
+      res.status(400).json({
+        error: 'One or more policies lack summaries',
+        message: `The following policies do not have summaries yet: ${policiesWithoutSummaries.map((p) => p.name).join(', ')}. Please ensure policies have been processed.`,
+        policies,
+      });
+      return;
+    }
+
+    // Return comparison data
+    const response: ComparisonResponse = {
+      policies,
+      comparisonReady: true,
+    };
+
+    res.status(200).json(response);
+  } catch (err) {
+    console.error('Error comparing policies:', err);
+    res.status(500).json({
+      error: 'Failed to compare policies',
+      message: err instanceof Error ? err.message : 'Unknown error',
     });
   }
 };
