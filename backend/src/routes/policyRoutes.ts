@@ -2,6 +2,7 @@ import { createPolicy, updatePolicyName, getPolicies, deletePolicy, reExtractPol
 import { getPolicyDocuments, getPolicySummary } from "../controllers/documentController";
 import { Router } from "express";
 import { authenticateToken } from "../middleware/authMiddleware";
+import { askComparisonQuestion } from "../controllers/comparisonController";
 
 const router = Router()
 
@@ -10,6 +11,9 @@ router.get('/', authenticateToken, getPolicies);
 
 // Compare policies
 router.get('/compare', authenticateToken, comparePolicies);
+
+// Ask comparison question
+router.post('/compare/ask', authenticateToken, askComparisonQuestion)
 
 // Create a new policy
 router.post('/', authenticateToken, createPolicy);
@@ -26,6 +30,7 @@ router.get('/:policyId/documents', authenticateToken, getPolicyDocuments);
 // Update policy name
 router.patch('/:policyId', authenticateToken, updatePolicyName);
 
+// Delete policy
 router.delete('/:policyId', authenticateToken, deletePolicy)
 
 export default router;
