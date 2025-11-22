@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { UploadPage } from './pages/UploadPage';
 import { SummaryPage } from './pages/SummaryPage';
 import { QAPage } from './pages/QAPage';
+import { ComparePoliciesPage } from './pages/ComparePoliciesPage';
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
@@ -72,6 +73,17 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <QAPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+          />
+
+        <Route 
+          path="/compare"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ComparePoliciesPage />
               </Layout>
             </ProtectedRoute>
           }

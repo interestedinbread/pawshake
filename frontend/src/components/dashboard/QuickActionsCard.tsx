@@ -31,6 +31,13 @@ const actions: ActionItem[] = [
     route: '/qa',
     variant: 'outline',
   },
+  {
+    title: 'Compare policies',
+    description: 'Ask questions to compare two policies side by side.',
+    icon: '⚖️',
+    route: '/compare',
+    variant: 'outline',
+  },
 ];
 
 export function QuickActionsCard() {
