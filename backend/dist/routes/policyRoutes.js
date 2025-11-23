@@ -5,6 +5,7 @@ const documentController_1 = require("../controllers/documentController");
 const express_1 = require("express");
 const authMiddleware_1 = require("../middleware/authMiddleware");
 const comparisonController_1 = require("../controllers/comparisonController");
+const coverageController_1 = require("../controllers/coverageController");
 const router = (0, express_1.Router)();
 // List all policies for authenticated user
 router.get('/', authMiddleware_1.authenticateToken, policiesController_1.getPolicies);
@@ -12,6 +13,8 @@ router.get('/', authMiddleware_1.authenticateToken, policiesController_1.getPoli
 router.get('/compare', authMiddleware_1.authenticateToken, policiesController_1.comparePolicies);
 // Ask comparison question
 router.post('/compare/ask', authMiddleware_1.authenticateToken, comparisonController_1.askComparisonQuestion);
+// Check coverage for an incident
+router.post('/:policyId/coverage-check', authMiddleware_1.authenticateToken, coverageController_1.checkCoverage);
 // Create a new policy
 router.post('/', authMiddleware_1.authenticateToken, policiesController_1.createPolicy);
 // Get policy summary

@@ -1,6 +1,7 @@
 export interface QAResponse {
     answer: string;
     sources: SourceCitation[];
+    suggestCoverageCheck?: boolean;
 }
 export interface SourceCitation {
     text: string;
