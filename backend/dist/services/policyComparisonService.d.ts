@@ -115,11 +115,41 @@ export declare function getPolicyContextForTopic(policyId: string, topic: string
  */
 export declare function getComparisonContext(policy1Id: string, policy2Id: string, topics?: readonly string[]): Promise<TopicComparisonContext[]>;
 /**
+ * Simple comparison response for chat interface
+ * Returns a natural language answer, similar to QA responses
+ */
+export interface ComparisonAnswer {
+    answer: string;
+    sources: {
+        policy1: Array<{
+            pageNumber?: number;
+            documentId?: string;
+        }>;
+        policy2: Array<{
+            pageNumber?: number;
+            documentId?: string;
+        }>;
+    };
+}
+/**
+ * Compare policies based on a user's question (for chat interface)
+ * This allows users to ask arbitrary questions, not just predefined topics
+ * Returns a simple text answer suitable for chat, not the full LanguageComparisonResult
+ * @param policy1Id - First policy ID
+ * @param policy2Id - Second policy ID
+ * @param question - User's question about the policies
+ * @param policy1Name - Name of first policy (for context)
+ * @param policy2Name - Name of second policy (for context)
+ * @param nChunks - Number of chunks to retrieve per policy (default 7)
+ * @returns Simple comparison answer for chat
+ */
+export declare function comparePoliciesForQuestion(policy1Id: string, policy2Id: string, question: string, policy1Name: string, policy2Name: string, nChunks?: number): Promise<ComparisonAnswer>;
+/**
  * Compare policy language for a specific topic using LLM
  * Emphasizes synthesizing broader context, not section-by-section comparison
  * @param policy1Chunks - Chunks from Policy 1
  * @param policy2Chunks - Chunks from Policy 2
- * @param topic - Topic being compared
+ * @param topic - Topic being compared (can be a predefined topic or user's question)
  * @returns Language comparison result
  */
 export declare function comparePolicyLanguage(policy1Chunks: SimilarChunk[], policy2Chunks: SimilarChunk[], topic: string): Promise<LanguageComparisonResult>;

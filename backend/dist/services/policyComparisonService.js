@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPolicyContextForTopic = getPolicyContextForTopic;
 exports.getComparisonContext = getComparisonContext;
+exports.comparePoliciesForQuestion = comparePoliciesForQuestion;
 exports.comparePolicyLanguage = comparePolicyLanguage;
 exports.compareAllTopics = compareAllTopics;
 exports.comparePolicySummaries = comparePolicySummaries;
@@ -84,11 +85,98 @@ async function getComparisonContext(policy1Id, policy2Id, topics = COMPARISON_TO
     return contexts;
 }
 /**
+ * Compare policies based on a user's question (for chat interface)
+ * This allows users to ask arbitrary questions, not just predefined topics
+ * Returns a simple text answer suitable for chat, not the full LanguageComparisonResult
+ * @param policy1Id - First policy ID
+ * @param policy2Id - Second policy ID
+ * @param question - User's question about the policies
+ * @param policy1Name - Name of first policy (for context)
+ * @param policy2Name - Name of second policy (for context)
+ * @param nChunks - Number of chunks to retrieve per policy (default 7)
+ * @returns Simple comparison answer for chat
+ */
+async function comparePoliciesForQuestion(policy1Id, policy2Id, question, policy1Name, policy2Name, nChunks = 7) {
+    try {
+        // Get relevant chunks for both policies based on the user's question
+        const [policy1Chunks, policy2Chunks] = await Promise.all([
+            getPolicyContextForTopic(policy1Id, question, nChunks),
+            getPolicyContextForTopic(policy2Id, question, nChunks),
+        ]);
+        // Build context from chunks
+        const policy1Context = policy1Chunks
+            .map((chunk, index) => {
+            const pageInfo = chunk.pageNumber ? ` (Page ${chunk.pageNumber})` : '';
+            return `[${policy1Name}, Section ${index + 1}${pageInfo}]:\n${chunk.text}`;
+        })
+            .join('\n\n---\n\n');
+        const policy2Context = policy2Chunks
+            .map((chunk, index) => {
+            const pageInfo = chunk.pageNumber ? ` (Page ${chunk.pageNumber})` : '';
+            return `[${policy2Name}, Section ${index + 1}${pageInfo}]:\n${chunk.text}`;
+        })
+            .join('\n\n---\n\n');
+        // Build prompt for natural language answer (like QA)
+        const systemPrompt = `You are a helpful assistant that compares pet insurance policies.
+Your answers should be:
+- Clear and conversational, as if explaining to a friend
+- Focus on answering the user's specific question
+- Highlight key differences between the two policies
+- Include specific details like dollar amounts, percentages, and time periods when available
+- At the end, suggest which policy might be better for the user's question (if applicable)
+
+IMPORTANT: At the end of your answer, add a brief note suggesting which page(s) the user should refer to for more details.
+For example: "For more details, refer to page X of ${policy1Name} and page Y of ${policy2Name}."
+
+If the provided context doesn't contain enough information to fully answer the question, say so honestly.
+Do not make up information that isn't in the provided context.`;
+        const userPrompt = `The user asked: "${question}"
+
+Compare how ${policy1Name} and ${policy2Name} handle this:
+
+${policy1Name} - relevant sections:
+${policy1Context || 'No relevant sections found'}
+
+${policy2Name} - relevant sections:
+${policy2Context || 'No relevant sections found'}
+
+Provide a clear, conversational comparison that directly answers the user's question.`;
+        const response = await chatModel.invoke([
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+        ]);
+        const answer = response.content;
+        // Extract source page numbers
+        const sources = {
+            policy1: policy1Chunks
+                .filter((chunk) => chunk.pageNumber !== undefined)
+                .map((chunk) => ({
+                ...(chunk.pageNumber !== undefined && { pageNumber: chunk.pageNumber }),
+                ...(chunk.documentId && { documentId: chunk.documentId }),
+            })),
+            policy2: policy2Chunks
+                .filter((chunk) => chunk.pageNumber !== undefined)
+                .map((chunk) => ({
+                ...(chunk.pageNumber !== undefined && { pageNumber: chunk.pageNumber }),
+                ...(chunk.documentId && { documentId: chunk.documentId }),
+            })),
+        };
+        return {
+            answer,
+            sources,
+        };
+    }
+    catch (error) {
+        console.error(`Error comparing policies for question "${question}":`, error);
+        throw error;
+    }
+}
+/**
  * Compare policy language for a specific topic using LLM
  * Emphasizes synthesizing broader context, not section-by-section comparison
  * @param policy1Chunks - Chunks from Policy 1
  * @param policy2Chunks - Chunks from Policy 2
- * @param topic - Topic being compared
+ * @param topic - Topic being compared (can be a predefined topic or user's question)
  * @returns Language comparison result
  */
 async function comparePolicyLanguage(policy1Chunks, policy2Chunks, topic) {
