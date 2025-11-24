@@ -1,251 +1,119 @@
 import { jsPDF } from 'jspdf';
-import type { CoverageChecklist } from '../api/coverageApi';
+import html2canvas from 'html2canvas';
 
 /**
- * Generate a PDF from a claim checklist
- * @param checklist - The coverage checklist to convert to PDF
+ * Generate a PDF from a claim checklist by capturing the rendered UI component
+ * @param checklistElementId - The ID of the DOM element containing the checklist card
  * @param incidentDescription - The original incident description
  * @param policyName - Optional policy name to include in header
  */
-export function generateChecklistPDF(
-  checklist: CoverageChecklist,
+export async function generateChecklistPDF(
+  checklistElementId: string,
   incidentDescription: string,
   policyName?: string
-): void {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 20;
-  const maxWidth = pageWidth - 2 * margin;
-  let yPosition = margin;
+): Promise<void> {
+  // Find the checklist element
+  const element = document.getElementById(checklistElementId);
+  if (!element) {
+    throw new Error('Checklist element not found');
+  }
 
-  // Helper function to add a new page if needed
-  const checkPageBreak = (requiredSpace: number = 20) => {
-    if (yPosition + requiredSpace > doc.internal.pageSize.getHeight() - margin) {
-      doc.addPage();
-      yPosition = margin;
-    }
-  };
+  // Capture the element as a canvas
+  const canvas = await html2canvas(element, {
+    scale: 2, // Higher quality
+    useCORS: true,
+    logging: false,
+    backgroundColor: '#ffffff',
+  });
 
-  // Helper function to add text with word wrapping
-  const addWrappedText = (text: string, fontSize: number, isBold: boolean = false) => {
-    doc.setFontSize(fontSize);
-    doc.setFont('helvetica', isBold ? 'bold' : 'normal');
-    
-    const lines = doc.splitTextToSize(text, maxWidth);
-    lines.forEach((line: string) => {
-      checkPageBreak(fontSize + 2);
-      doc.text(line, margin, yPosition);
-      yPosition += fontSize * 0.5 + 2;
-    });
-    yPosition += 3; // Extra spacing after text block
-  };
+  // Create PDF
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+  const margin = 15;
 
-  // Helper function to add a section header
-  const addSectionHeader = (title: string) => {
-    checkPageBreak(15);
-    yPosition += 5;
-    addWrappedText(title, 14, true);
-  };
+  // Calculate dimensions
+  const imgWidth = pdfWidth - 2 * margin;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  // Header
-  doc.setFontSize(18);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Claim Checklist', margin, yPosition);
-  yPosition += 10;
+  // Add header section
+  pdf.setFontSize(18);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Claim Checklist', margin, margin);
+
+  let yPosition = margin + 10;
 
   if (policyName) {
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Policy: ${policyName}`, margin, yPosition);
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(`Policy: ${policyName}`, margin, yPosition);
+    yPosition += 6;
+  }
+
+  pdf.setFontSize(10);
+  pdf.setTextColor(100, 100, 100);
+  pdf.text(
+    `Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+    margin,
+    yPosition
+  );
+  yPosition += 8;
+  pdf.setTextColor(0, 0, 0);
+
+  // Add incident description section
+  pdf.setFontSize(12);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Incident Description', margin, yPosition);
+  yPosition += 6;
+
+  pdf.setFontSize(10);
+  pdf.setFont('helvetica', 'normal');
+  const descriptionLines = pdf.splitTextToSize(incidentDescription, imgWidth);
+  descriptionLines.forEach((line: string) => {
+    if (yPosition + 5 > pdfHeight - margin) {
+      pdf.addPage();
+      yPosition = margin;
+    }
+    pdf.text(line, margin, yPosition);
     yPosition += 5;
-  }
+  });
 
-  doc.setFontSize(10);
-  doc.setTextColor(100, 100, 100);
-  doc.text(`Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, margin, yPosition);
-  yPosition += 10;
-  doc.setTextColor(0, 0, 0);
+  yPosition += 5;
 
-  // Incident Description
-  addSectionHeader('Incident Description');
-  addWrappedText(incidentDescription, 10);
+  // Add the captured checklist image
+  // If image is too tall, split across pages
+  let remainingHeight = imgHeight;
+  let sourceY = 0;
 
-  // Summary
-  addSectionHeader('Summary');
-  addWrappedText(checklist.summary, 10);
+  while (remainingHeight > 0) {
+    // Check if we need a new page
+    if (yPosition + 10 > pdfHeight - margin) {
+      pdf.addPage();
+      yPosition = margin;
+    }
 
-  // Coverage Status
-  addSectionHeader('Coverage Status');
-  
-  const coverageStatusText = 
-    checklist.isCovered === true ? 'Covered' :
-    checklist.isCovered === false ? 'Not Covered' :
-    checklist.isCovered === 'partial' ? 'Partially Covered' :
-    'Coverage Unclear';
+    // Calculate how much of the image fits on this page
+    const availableHeight = pdfHeight - margin - yPosition;
+    const heightToAdd = Math.min(remainingHeight, availableHeight);
+    const sourceHeight = (heightToAdd / imgHeight) * canvas.height;
 
-  const statusColor = 
-    checklist.isCovered === true ? [34, 197, 94] : // green
-    checklist.isCovered === false ? [239, 68, 68] : // red
-    checklist.isCovered === 'partial' ? [234, 179, 8] : // yellow
-    [100, 100, 100]; // gray
+    // Create a temporary canvas for this portion
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = sourceHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (tempCtx) {
+      tempCtx.drawImage(canvas, 0, sourceY, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
+      const portionImgData = tempCanvas.toDataURL('image/png');
 
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-  doc.text(coverageStatusText, margin, yPosition);
-  yPosition += 6;
-  doc.setTextColor(0, 0, 0);
+      // Add image portion to PDF
+      pdf.addImage(portionImgData, 'PNG', margin, yPosition, imgWidth, heightToAdd);
+    }
 
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Confidence: ${checklist.confidence.charAt(0).toUpperCase() + checklist.confidence.slice(1)}`, margin, yPosition);
-  yPosition += 6;
-
-  if (checklist.estimatedCoverage?.percentage) {
-    doc.text(`Estimated Coverage: ${checklist.estimatedCoverage.percentage}%`, margin, yPosition);
-    yPosition += 6;
-  }
-
-  yPosition += 3;
-
-  // Coverage Details
-  addSectionHeader('Coverage Details');
-
-  if (checklist.coverageDetails.coveredAspects.length > 0) {
-    doc.setFont('helvetica', 'bold');
-    doc.text('Covered Aspects:', margin, yPosition);
-    yPosition += 6;
-    doc.setFont('helvetica', 'normal');
-    checklist.coverageDetails.coveredAspects.forEach((aspect) => {
-      doc.text(`  • ${aspect}`, margin + 5, yPosition);
-      yPosition += 6;
-      checkPageBreak(6);
-    });
-    yPosition += 2;
-  }
-
-  if (checklist.coverageDetails.excludedAspects && checklist.coverageDetails.excludedAspects.length > 0) {
-    doc.setFont('helvetica', 'bold');
-    doc.text('Excluded Aspects:', margin, yPosition);
-    yPosition += 6;
-    doc.setFont('helvetica', 'normal');
-    checklist.coverageDetails.excludedAspects.forEach((aspect) => {
-      doc.text(`  • ${aspect}`, margin + 5, yPosition);
-      yPosition += 6;
-      checkPageBreak(6);
-    });
-    yPosition += 2;
-  }
-
-  if (checklist.coverageDetails.waitingPeriodApplies) {
-    doc.text('⚠ Waiting period applies', margin, yPosition);
-    yPosition += 6;
-    checkPageBreak(6);
-  }
-
-  if (checklist.coverageDetails.deductibleApplies) {
-    doc.text('⚠ Deductible applies', margin, yPosition);
-    yPosition += 6;
-    checkPageBreak(6);
-  }
-
-  if (checklist.coverageDetails.notes) {
-    doc.text(`Note: ${checklist.coverageDetails.notes}`, margin, yPosition);
-    yPosition += 6;
-    checkPageBreak(6);
-  }
-
-  yPosition += 3;
-
-  // Required Documents
-  if (checklist.requiredDocuments.length > 0) {
-    addSectionHeader('Required Documents');
-    
-    checklist.requiredDocuments.forEach((docItem, index) => {
-      checkPageBreak(20);
-      
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${index + 1}. ${docItem.documentType}`, margin, yPosition);
-      yPosition += 6;
-      
-      doc.setFont('helvetica', 'normal');
-      doc.text(`   Description: ${docItem.description}`, margin + 5, yPosition);
-      yPosition += 6;
-      checkPageBreak(6);
-      
-      doc.text(`   Why Required: ${docItem.whyRequired}`, margin + 5, yPosition);
-      yPosition += 6;
-      checkPageBreak(6);
-      
-      if (docItem.deadline) {
-        doc.setFont('helvetica', 'bold');
-        doc.text(`   Deadline: ${docItem.deadline}`, margin + 5, yPosition);
-        doc.setFont('helvetica', 'normal');
-        yPosition += 6;
-        checkPageBreak(6);
-      }
-      
-      yPosition += 3;
-    });
-  }
-
-  // Action Steps
-  if (checklist.actionSteps.length > 0) {
-    addSectionHeader('Action Steps');
-    
-    // Sort by step number
-    const sortedSteps = [...checklist.actionSteps].sort((a, b) => a.step - b.step);
-    
-    sortedSteps.forEach((step) => {
-      checkPageBreak(20);
-      
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Step ${step.step}: ${step.action}`, margin, yPosition);
-      yPosition += 6;
-      
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100, 100, 100);
-      doc.text(`   Priority: ${step.priority.charAt(0).toUpperCase() + step.priority.slice(1)}`, margin + 5, yPosition);
-      yPosition += 6;
-      checkPageBreak(6);
-      doc.setTextColor(0, 0, 0);
-      
-      if (step.deadline) {
-        doc.setFont('helvetica', 'bold');
-        doc.text(`   Deadline: ${step.deadline}`, margin + 5, yPosition);
-        doc.setFont('helvetica', 'normal');
-        yPosition += 6;
-        checkPageBreak(6);
-      }
-      
-      if (step.policyReference?.pageNumber) {
-        doc.text(`   Policy Reference: Page ${step.policyReference.pageNumber}`, margin + 5, yPosition);
-        yPosition += 6;
-        checkPageBreak(6);
-      }
-      
-      yPosition += 3;
-    });
-  }
-
-  // Warnings
-  if (checklist.warnings && checklist.warnings.length > 0) {
-    addSectionHeader('Warnings');
-    doc.setTextColor(239, 68, 68); // red
-    checklist.warnings.forEach((warning) => {
-      doc.text(`⚠ ${warning}`, margin, yPosition);
-      yPosition += 6;
-      checkPageBreak(6);
-    });
-    doc.setTextColor(0, 0, 0);
-    yPosition += 3;
-  }
-
-  // Estimated Coverage Details
-  if (checklist.estimatedCoverage?.notes) {
-    addSectionHeader('Estimated Coverage Notes');
-    addWrappedText(checklist.estimatedCoverage.notes, 10);
+    yPosition += heightToAdd + 5;
+    sourceY += sourceHeight;
+    remainingHeight -= heightToAdd;
   }
 
   // Generate filename
@@ -254,6 +122,5 @@ export function generateChecklistPDF(
   const filename = `claim-checklist-${dateStr}-${timeStr}.pdf`;
 
   // Save the PDF
-  doc.save(filename);
+  pdf.save(filename);
 }
-
