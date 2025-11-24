@@ -2,80 +2,41 @@ import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { coverageApi, type CoverageChecklist } from '../api/coverageApi';
 import { SelectPolicy } from '../components/policy/SelectPolicy';
-import type { ChatMessage } from '../components/qa/ChatHistory';
-import { ChatInput } from '../components/qa/ChatInput';
 import { CoverageChecklistCard } from '../components/coverage/CoverageChecklistCard';
-
-// Extended message type for claim checklist page
-interface ClaimChecklistChatMessage extends ChatMessage {
-  checklist?: CoverageChecklist;
-}
+import { Button } from '../components/common/Button';
 
 export function ClaimChecklistPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const policyId = searchParams.get('policyId');
-  const prefillQuestion = searchParams.get('question'); // For navigation from Q&A
 
-  const [messages, setMessages] = useState<ClaimChecklistChatMessage[]>([]);
+  const [incidentDescription, setIncidentDescription] = useState('');
+  const [checklist, setChecklist] = useState<CoverageChecklist | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Pre-fill question if coming from Q&A page
-  const [initialQuestion] = useState<string | null>(prefillQuestion);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const handleCheckCoverage = async (incidentDescription: string) => {
     if (!policyId) {
       setError('Please select a policy first');
       return;
     }
 
-    // Add user message immediately
-    const userMessage: ClaimChecklistChatMessage = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: incidentDescription,
-      timestamp: new Date(),
-    };
+    if (!incidentDescription.trim()) {
+      setError('Please describe the incident');
+      return;
+    }
 
-    setMessages((prev) => [...prev, userMessage]);
-
-    // Add loading assistant message
-    const loadingMessage: ClaimChecklistChatMessage = {
-      id: `loading-${Date.now()}`,
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      isLoading: true,
-    };
-
-    setMessages((prev) => [...prev, loadingMessage]);
     setIsLoading(true);
     setError(null);
 
     try {
-      const checklist = await coverageApi.checkCoverage(policyId, incidentDescription);
-
-      // Replace loading message with actual response
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        const loadingIndex = newMessages.findIndex((msg) => msg.isLoading);
-        if (loadingIndex !== -1) {
-          newMessages[loadingIndex] = {
-            id: `assistant-${Date.now()}`,
-            role: 'assistant',
-            content: checklist.summary, // Use summary as the text content
-            timestamp: new Date(),
-            checklist, // Embed the full checklist
-          };
-        }
-        return newMessages;
-      });
+      const result = await coverageApi.checkCoverage(policyId, incidentDescription);
+      setChecklist(result);
     } catch (err) {
-      // Remove loading message and show error
-      setMessages((prev) => prev.filter((msg) => !msg.isLoading));
       const errorMessage =
-        err instanceof Error ? err.message : 'Failed to analyze coverage. Please try again.';
+        err instanceof Error ? err.message : 'Failed to generate checklist. Please try again.';
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -87,140 +48,79 @@ export function ClaimChecklistPage() {
     return (
       <SelectPolicy
         onSelect={(id) => {
-          const params = new URLSearchParams({ policyId: id });
-          if (prefillQuestion) {
-            params.set('question', prefillQuestion);
-          }
-          navigate(`/claim-checklist?${params.toString()}`);
+          navigate(`/claim-checklist?policyId=${encodeURIComponent(id)}`);
         }}
       />
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white px-6 py-4">
+      <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
         <h1 className="text-xl font-semibold text-slate-900">Claim Checklist</h1>
         <p className="mt-1 text-sm text-slate-600">
           Describe an incident to get a detailed checklist with required documents and action steps.
         </p>
       </div>
 
-      {/* Error message */}
-      {error && (
-        <div className="mx-6 mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-          {error}
+      {/* Incident Description Form */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="incident-description"
+              className="block text-sm font-medium text-slate-700 mb-2"
+            >
+              Describe the incident or your pet's condition
+            </label>
+            <textarea
+              id="incident-description"
+              value={incidentDescription}
+              onChange={(e) => setIncidentDescription(e.target.value)}
+              placeholder="e.g., My dog broke his leg playing fetch in the park yesterday afternoon..."
+              rows={6}
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              disabled={isLoading}
+            />
+            <p className="mt-2 text-xs text-slate-500">
+              Be as specific as possible about what happened, when it occurred, and your pet's
+              current condition.
+            </p>
+          </div>
+
+          {error && (
+            <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+              {error}
+            </div>
+          )}
+
+          <div className="flex justify-end">
+            <Button type="submit" variant="primary" disabled={isLoading || !incidentDescription.trim()}>
+              {isLoading ? 'Generating checklist...' : 'Generate Checklist'}
+            </Button>
+          </div>
+        </form>
+      </div>
+
+      {/* Checklist Result */}
+      {checklist && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <CoverageChecklistCard checklist={checklist} />
         </div>
       )}
 
-      {/* Chat history with embedded checklist cards */}
-      <div className="flex-1 overflow-hidden">
-        <div className="flex h-full flex-col gap-4 overflow-y-auto px-4 py-6">
-          {messages.length === 0 ? (
-            <div className="flex h-full items-center justify-center">
-              <div className="text-center">
-                <p className="text-lg font-medium text-slate-600">No checklists yet</p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Describe an incident to get a claim checklist.
-                </p>
-                {initialQuestion && (
-                  <button
-                    onClick={() => handleCheckCoverage(initialQuestion)}
-                    className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                  >
-                    Create checklist: &quot;{initialQuestion}&quot;
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            messages.map((message) => {
-              if (message.isLoading) {
-                return (
-                  <div key={message.id} className="flex justify-start">
-                    <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 animate-pulse rounded-full bg-slate-400" />
-                        <div className="h-2 w-2 animate-pulse rounded-full bg-slate-400 [animation-delay:0.2s]" />
-                        <div className="h-2 w-2 animate-pulse rounded-full bg-slate-400 [animation-delay:0.4s]" />
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              if (message.role === 'user') {
-                const formattedTime = message.timestamp
-                  ? new Date(message.timestamp).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
-                  : null;
-                return (
-                  <div key={message.id} className="flex justify-end">
-                    <div className="max-w-[80%] space-y-1">
-                      <div className="rounded-2xl rounded-tr-sm bg-blue-600 px-4 py-3 text-white">
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                          {message.content}
-                        </p>
-                      </div>
-                      {formattedTime && (
-                        <p className="text-right text-xs text-slate-500">{formattedTime}</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              }
-
-              // Assistant message with optional checklist
-              const formattedTime = message.timestamp
-                ? new Date(message.timestamp).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                : null;
-
-              return (
-                <div key={message.id} className="flex justify-start">
-                  <div className="max-w-[90%] space-y-3">
-                    {/* Text summary */}
-                    {message.content && (
-                      <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-3 shadow-sm">
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-900">
-                          {message.content}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Embedded checklist card */}
-                    {message.checklist && (
-                      <div className="rounded-xl border border-blue-200 bg-blue-50/30 p-4">
-                        <CoverageChecklistCard checklist={message.checklist} />
-                      </div>
-                    )}
-
-                    {formattedTime && (
-                      <p className="text-left text-xs text-slate-500">{formattedTime}</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          )}
+      {/* Loading State */}
+      {isLoading && !checklist && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-center gap-3 py-8">
+            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
+            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-600 [animation-delay:0.2s]" />
+            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-600 [animation-delay:0.4s]" />
+            <span className="ml-2 text-sm text-slate-600">Analyzing incident and generating checklist...</span>
+          </div>
         </div>
-      </div>
-
-      {/* Chat input */}
-      <div className="border-t border-slate-200 bg-white p-4">
-        <ChatInput
-          onSubmit={handleCheckCoverage}
-          isLoading={isLoading}
-          disabled={!policyId}
-          placeholder="Describe the incident (e.g., 'My dog broke his leg playing fetch')..."
-        />
-      </div>
+      )}
     </div>
   );
 }
-

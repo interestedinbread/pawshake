@@ -56,9 +56,6 @@ export function QAPage() {
             role: 'assistant',
             content: response.answer,
             timestamp: new Date(),
-            suggestCoverageCheck: response.suggestCoverageCheck,
-            originalQuestion: response.suggestCoverageCheck ? question : undefined,
-            policyId: response.suggestCoverageCheck ? policyId : undefined,
           };
         }
         return newMessages;

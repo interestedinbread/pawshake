@@ -12,7 +12,6 @@ export interface SourceCitation {
 export interface QAResponse {
   answer: string;
   sources: SourceCitation[];
-  suggestCoverageCheck?: boolean; // True if the question seems to be about incidents/claims
 }
 
 interface AskQuestionRequest {

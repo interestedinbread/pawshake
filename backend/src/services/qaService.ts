@@ -16,7 +16,6 @@ const chatModel = new ChatOpenAI({
 export interface QAResponse {
   answer: string;
   sources: SourceCitation[]; // Kept for backward compatibility, but will be empty
-  suggestCoverageCheck?: boolean; // True if the question seems to be about coverage/incidents
 }
 
 export interface SourceCitation {
@@ -26,95 +25,6 @@ export interface SourceCitation {
   policyId?: string;
   chunkIndex: number;
   similarity: number; // Lower distance = higher similarity
-}
-
-/**
- * Detect if a question is about coverage/incidents that would benefit from a coverage checklist
- * @param question - User's question
- * @returns True if the question seems coverage/incident-related
- */
-function detectCoverageQuestion(question: string): boolean {
-  const normalizedQuestion = question.toLowerCase().trim();
-
-  // Keywords that suggest coverage/incident questions
-  const coverageKeywords = [
-    // Incident-related
-    'incident',
-    'accident',
-    'happened',
-    'occurred',
-    'broke',
-    'broken',
-    'injured',
-    'injury',
-    'hurt',
-    'sick',
-    'illness',
-    'surgery',
-    'operation',
-    'procedure',
-    'treatment',
-    'emergency',
-    'vet visit',
-    'veterinary',
-    'diagnosis',
-    'diagnosed',
-    
-    // Coverage-related
-    'covered',
-    'coverage',
-    'cover',
-    'is covered',
-    'will cover',
-    'does it cover',
-    'covered by',
-    'claim',
-    'file a claim',
-    'submit claim',
-    'claimable',
-    
-    // Specific conditions/treatments
-    'pre-existing',
-    'preexisting',
-    'waiting period',
-    'deductible',
-    'reimbursement',
-    'reimburse',
-    
-    // Action-oriented
-    'what do i need',
-    'what documents',
-    'required documents',
-    'what steps',
-    'how to file',
-    'how do i',
-    'can i claim',
-    'eligible',
-    'qualify',
-  ];
-
-  // Check if question contains coverage-related keywords
-  const hasCoverageKeyword = coverageKeywords.some((keyword) =>
-    normalizedQuestion.includes(keyword)
-  );
-
-  // Also check for question patterns that suggest coverage inquiries
-  const coverageQuestionPatterns = [
-    /is.*covered/,
-    /will.*cover/,
-    /does.*cover/,
-    /can.*claim/,
-    /what.*need.*claim/,
-    /how.*file.*claim/,
-    /what.*documents.*need/,
-    /is.*eligible/,
-  ];
-
-  const matchesPattern = coverageQuestionPatterns.some((pattern) =>
-    pattern.test(normalizedQuestion)
-  );
-
-  return hasCoverageKeyword || matchesPattern;
 }
 
 /**
@@ -181,14 +91,10 @@ ${context}`;
 
     const answer = response.content as string;
 
-    // Step 5: Detect if this question would benefit from a coverage checklist
-    const suggestCoverageCheck = detectCoverageQuestion(question);
-
-    // Step 6: Return answer without text citations (LLM includes page references in answer)
+    // Step 5: Return answer without text citations (LLM includes page references in answer)
     return {
       answer,
       sources: [], // No longer returning text citations
-      suggestCoverageCheck,
     };
   } catch (error) {
     throw new Error(
