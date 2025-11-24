@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { coverageApi, type CoverageChecklist } from '../api/coverageApi';
 import { SelectPolicy } from '../components/policy/SelectPolicy';
 import { CoverageChecklistCard } from '../components/coverage/CoverageChecklistCard';
 import { Button } from '../components/common/Button';
+import { policyApi } from '../api/policyApi';
+import { generateChecklistPDF } from '../utils/checklistPdfGenerator';
 
 export function ClaimChecklistPage() {
   const [searchParams] = useSearchParams();
@@ -14,6 +16,24 @@ export function ClaimChecklistPage() {
   const [checklist, setChecklist] = useState<CoverageChecklist | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [policyName, setPolicyName] = useState<string | undefined>(undefined);
+
+  // Fetch policy name when policyId is available
+  useEffect(() => {
+    if (policyId) {
+      policyApi
+        .getPolicies()
+        .then((response) => {
+          const policy = response.policies.find((p) => p.id === policyId);
+          if (policy) {
+            setPolicyName(policy.name);
+          }
+        })
+        .catch(() => {
+          // Silently fail - policy name is optional
+        });
+    }
+  }, [policyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +126,16 @@ export function ClaimChecklistPage() {
       {/* Checklist Result */}
       {checklist && (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">Your Claim Checklist</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => generateChecklistPDF(checklist, incidentDescription, policyName)}
+            >
+              📄 Download PDF
+            </Button>
+          </div>
           <CoverageChecklistCard checklist={checklist} />
         </div>
       )}
