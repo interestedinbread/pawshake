@@ -4,6 +4,7 @@ import { qaApi } from '../api/qaApi';
 import { SelectPolicy } from '../components/policy/SelectPolicy';
 import { ChatHistory, type ChatMessage } from '../components/qa/ChatHistory';
 import { ChatInput } from '../components/qa/ChatInput';
+import { Button } from '../components/common/Button';
 
 export function QAPage() {
   const [searchParams] = useSearchParams();
@@ -86,10 +87,22 @@ export function QAPage() {
     <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border border-slate-200 bg-white shadow-sm">
       {/* Header */}
       <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white px-6 py-4">
-        <h1 className="text-xl font-semibold text-slate-900">Ask about your policy</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Get answers to questions about your policy coverage, limits, and more.
-        </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">Ask about your policy</h1>
+            <p className="mt-1 text-sm text-slate-600">
+              Get answers to questions about your policy coverage, limits, and more.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/claim-checklist?policyId=${encodeURIComponent(policyId)}`)}
+            className="ml-4"
+          >
+            📋 Create Claim Checklist
+          </Button>
+        </div>
       </div>
 
       {/* Error message */}
