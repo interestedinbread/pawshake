@@ -9,6 +9,9 @@ export interface ChatMessage {
   sources?: SourceCitation[];
   timestamp: Date | string;
   isLoading?: boolean;
+  suggestCoverageCheck?: boolean; // True if coverage check is suggested
+  originalQuestion?: string; // Original question for coverage check link
+  policyId?: string; // Policy ID for coverage check link
 }
 
 interface ChatHistoryProps {
@@ -64,6 +67,9 @@ export function ChatHistory({ messages, maxMessages }: ChatHistoryProps) {
           sources={message.sources}
           timestamp={message.timestamp}
           isLoading={message.isLoading}
+          suggestCoverageCheck={message.suggestCoverageCheck}
+          originalQuestion={message.originalQuestion}
+          policyId={message.policyId}
         />
       ))}
     </div>

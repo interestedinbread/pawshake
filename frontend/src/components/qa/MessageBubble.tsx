@@ -1,9 +1,14 @@
+import { Link } from 'react-router-dom';
+
 interface MessageBubbleProps {
   role: 'user' | 'assistant';
   content: string;
   sources?: never; // Citations removed - LLM includes page references in answer
   timestamp?: Date | string;
   isLoading?: boolean;
+  suggestCoverageCheck?: boolean;
+  originalQuestion?: string;
+  policyId?: string;
 }
 
 export function MessageBubble({
@@ -11,6 +16,9 @@ export function MessageBubble({
   content,
   timestamp,
   isLoading = false,
+  suggestCoverageCheck = false,
+  originalQuestion,
+  policyId,
 }: MessageBubbleProps) {
 
   const isUser = role === 'user';
@@ -50,10 +58,26 @@ export function MessageBubble({
   // Assistant message
   return (
     <div className="flex justify-start">
-      <div className="max-w-[80%] space-y-1">
+      <div className="max-w-[80%] space-y-2">
         <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-3 shadow-sm">
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-900">{content}</p>
         </div>
+
+        {/* Coverage check suggestion link */}
+        {suggestCoverageCheck && originalQuestion && policyId && (
+          <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2">
+            <p className="mb-2 text-xs font-medium text-blue-900">
+              💡 Get a detailed coverage checklist
+            </p>
+            <Link
+              to={`/coverage-check?policyId=${encodeURIComponent(policyId)}&question=${encodeURIComponent(originalQuestion)}`}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800"
+            >
+              Check coverage details →
+            </Link>
+          </div>
+        )}
+
         {formattedTime && (
           <p className="text-left text-xs text-slate-500">{formattedTime}</p>
         )}
