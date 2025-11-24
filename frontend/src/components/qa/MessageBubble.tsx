@@ -63,17 +63,17 @@ export function MessageBubble({
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-900">{content}</p>
         </div>
 
-        {/* Coverage check suggestion link */}
+        {/* Claim checklist suggestion link */}
         {suggestCoverageCheck && originalQuestion && policyId && (
           <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2">
             <p className="mb-2 text-xs font-medium text-blue-900">
-              💡 Get a detailed coverage checklist
+              💡 Get a detailed claim checklist
             </p>
             <Link
-              to={`/coverage-check?policyId=${encodeURIComponent(policyId)}&question=${encodeURIComponent(originalQuestion)}`}
+              to={`/claim-checklist?policyId=${encodeURIComponent(policyId)}&question=${encodeURIComponent(originalQuestion)}`}
               className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800"
             >
-              Check coverage details →
+              Create claim checklist →
             </Link>
           </div>
         )}

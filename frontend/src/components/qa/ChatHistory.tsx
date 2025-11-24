@@ -9,9 +9,9 @@ export interface ChatMessage {
   sources?: SourceCitation[];
   timestamp: Date | string;
   isLoading?: boolean;
-  suggestCoverageCheck?: boolean; // True if coverage check is suggested
-  originalQuestion?: string; // Original question for coverage check link
-  policyId?: string; // Policy ID for coverage check link
+  suggestCoverageCheck?: boolean; // True if claim checklist is suggested
+  originalQuestion?: string; // Original question for claim checklist link
+  policyId?: string; // Policy ID for claim checklist link
 }
 
 interface ChatHistoryProps {

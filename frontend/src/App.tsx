@@ -8,6 +8,7 @@ import { UploadPage } from './pages/UploadPage';
 import { SummaryPage } from './pages/SummaryPage';
 import { QAPage } from './pages/QAPage';
 import { ComparePoliciesPage } from './pages/ComparePoliciesPage';
+import { ClaimChecklistPage } from './pages/ClaimChecklistPage';
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
@@ -88,6 +89,17 @@ function App() {
             </ProtectedRoute>
           }
           />
+
+        <Route 
+          path="/claim-checklist"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ClaimChecklistPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
         
         {/* Catch all - redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />

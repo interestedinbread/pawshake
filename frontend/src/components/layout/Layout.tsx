@@ -13,6 +13,7 @@ const navLinks = [
   { label: 'Summary', to: '/summary' },
   { label: 'Q&A', to: '/qa' },
   { label: 'Compare', to: '/compare' },
+  { label: 'Claim Checklist', to: '/claim-checklist'}
 ];
 
 export function Layout({ children }: LayoutProps) {

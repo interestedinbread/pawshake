@@ -38,6 +38,13 @@ const actions: ActionItem[] = [
     route: '/compare',
     variant: 'outline',
   },
+  {
+    title: 'Create claim checklist',
+    description: 'Describe an incident and generate a checklist with required documents and action steps',
+    icon: "📋",
+    route: '/claim-checklist',
+    variant: 'outline'
+  }
 ];
 
 export function QuickActionsCard() {

@@ -6,18 +6,18 @@ import type { ChatMessage } from '../components/qa/ChatHistory';
 import { ChatInput } from '../components/qa/ChatInput';
 import { CoverageChecklistCard } from '../components/coverage/CoverageChecklistCard';
 
-// Extended message type for coverage check page
-interface CoverageChatMessage extends ChatMessage {
+// Extended message type for claim checklist page
+interface ClaimChecklistChatMessage extends ChatMessage {
   checklist?: CoverageChecklist;
 }
 
-export function CoverageCheckPage() {
+export function ClaimChecklistPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const policyId = searchParams.get('policyId');
-  const prefillQuestion = searchParams.get('question'); // For smart detection from Q&A
+  const prefillQuestion = searchParams.get('question'); // For navigation from Q&A
 
-  const [messages, setMessages] = useState<CoverageChatMessage[]>([]);
+  const [messages, setMessages] = useState<ClaimChecklistChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +31,7 @@ export function CoverageCheckPage() {
     }
 
     // Add user message immediately
-    const userMessage: CoverageChatMessage = {
+    const userMessage: ClaimChecklistChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
       content: incidentDescription,
@@ -41,7 +41,7 @@ export function CoverageCheckPage() {
     setMessages((prev) => [...prev, userMessage]);
 
     // Add loading assistant message
-    const loadingMessage: CoverageChatMessage = {
+    const loadingMessage: ClaimChecklistChatMessage = {
       id: `loading-${Date.now()}`,
       role: 'assistant',
       content: '',
@@ -91,7 +91,7 @@ export function CoverageCheckPage() {
           if (prefillQuestion) {
             params.set('question', prefillQuestion);
           }
-          navigate(`/coverage-check?${params.toString()}`);
+          navigate(`/claim-checklist?${params.toString()}`);
         }}
       />
     );
@@ -101,9 +101,9 @@ export function CoverageCheckPage() {
     <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border border-slate-200 bg-white shadow-sm">
       {/* Header */}
       <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white px-6 py-4">
-        <h1 className="text-xl font-semibold text-slate-900">Coverage check</h1>
+        <h1 className="text-xl font-semibold text-slate-900">Claim Checklist</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Describe an incident to get a detailed coverage checklist with required documents and action steps.
+          Describe an incident to get a detailed checklist with required documents and action steps.
         </p>
       </div>
 
@@ -120,16 +120,16 @@ export function CoverageCheckPage() {
           {messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
               <div className="text-center">
-                <p className="text-lg font-medium text-slate-600">No checks yet</p>
+                <p className="text-lg font-medium text-slate-600">No checklists yet</p>
                 <p className="mt-2 text-sm text-slate-500">
-                  Describe an incident to get a coverage checklist.
+                  Describe an incident to get a claim checklist.
                 </p>
                 {initialQuestion && (
                   <button
                     onClick={() => handleCheckCoverage(initialQuestion)}
                     className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                   >
-                    Check: &quot;{initialQuestion}&quot;
+                    Create checklist: &quot;{initialQuestion}&quot;
                   </button>
                 )}
               </div>
