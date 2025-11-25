@@ -133,7 +133,7 @@ export function ClaimChecklistPage() {
               size="sm"
               onClick={async () => {
                 try {
-                  await generateChecklistPDF('checklist-content', incidentDescription, policyName);
+                  await generateChecklistPDF(checklist, incidentDescription, policyName);
                 } catch (error) {
                   console.error('Failed to generate PDF:', error);
                   setError('Failed to generate PDF. Please try again.');
@@ -143,9 +143,7 @@ export function ClaimChecklistPage() {
               📄 Download PDF
             </Button>
           </div>
-          <div id="checklist-content">
-            <CoverageChecklistCard checklist={checklist} />
-          </div>
+          <CoverageChecklistCard checklist={checklist} />
         </div>
       )}
 
