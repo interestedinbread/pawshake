@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { policyApi } from "../../api/policyApi";
 import { Button } from "../common/Button";
+import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
+import { ApiError } from "../../api/apiClient";
 
 interface SelectPolicyProps {
   onSelect: (policyId: string) => void;
@@ -36,8 +38,12 @@ export function SelectPolicy({ onSelect }: SelectPolicyProps) {
         setPolicies(response.policies);
       } catch (err) {
         if (!isMounted) return;
-        const message =
-          err instanceof Error ? err.message : "Failed to load policies. Please try again.";
+        const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+        const message = getUserFriendlyErrorMessage(
+          err,
+          statusCode,
+          { action: 'load policies', resource: 'policies' }
+        );
         setError(message);
       } finally {
         if (isMounted) {

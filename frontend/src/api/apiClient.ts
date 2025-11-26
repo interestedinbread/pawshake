@@ -2,7 +2,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // Types for API responses
-interface ApiError {
+interface ApiErrorResponse {
   error: string;
   message?: string;
 }
@@ -15,10 +15,25 @@ function getToken(): string | null {
 }
 
 /**
+ * Custom error class that includes HTTP status code
+ */
+export class ApiError extends Error {
+  statusCode: number;
+  data: ApiErrorResponse;
+
+  constructor(message: string, statusCode: number, data: ApiErrorResponse) {
+    super(message);
+    this.name = 'ApiError';
+    this.statusCode = statusCode;
+    this.data = data;
+  }
+}
+
+/**
  * Handle API errors - especially 401 (unauthorized)
  */
 async function handleError(response: Response): Promise<never> {
-  const data: ApiError = await response.json().catch(() => ({
+  const data: ApiErrorResponse = await response.json().catch(() => ({
     error: 'Unknown error occurred',
   }));
 
@@ -30,7 +45,8 @@ async function handleError(response: Response): Promise<never> {
     // For now, we'll just clear storage
   }
 
-  throw new Error(data.error || data.message || `HTTP ${response.status}: ${response.statusText}`);
+  const errorMessage = data.error || data.message || `HTTP ${response.status}: ${response.statusText}`;
+  throw new ApiError(errorMessage, response.status, data);
 }
 
 /**

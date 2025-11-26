@@ -6,6 +6,8 @@ import { Input } from "../components/common/Input";
 import { Button } from "../components/common/Button";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { getUserFriendlyErrorMessage } from "../utils/errorMessages";
+import { ApiError } from "../api/apiClient";
 
 type Step = 'create' | 'upload' | 'success';
 
@@ -31,7 +33,12 @@ export function UploadPage() {
             setCreatedPolicyName(response.result.name);
             setStep('upload');
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to create policy. Please try again.';
+            const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+            const message = getUserFriendlyErrorMessage(
+                err,
+                statusCode,
+                { action: 'create policy', resource: 'policy' }
+            );
             setError(message);
             console.error('Error creating policy:', err);
         } finally {

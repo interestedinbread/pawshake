@@ -4,6 +4,8 @@ import { policyApi } from '../api/policyApi';
 import { SelectTwoPolicies } from '../components/policy/SelectTwoPolicies';
 import { ChatHistory, type ChatMessage } from '../components/qa/ChatHistory';
 import { ChatInput } from '../components/qa/ChatInput';
+import { getUserFriendlyErrorMessage } from '../utils/errorMessages';
+import { ApiError } from '../api/apiClient';
 
 export function ComparePoliciesPage() {
   const [searchParams] = useSearchParams();
@@ -64,8 +66,12 @@ export function ComparePoliciesPage() {
     } catch (err) {
       // Remove loading message and show error
       setMessages((prev) => prev.filter((msg) => !msg.isLoading));
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to get comparison. Please try again.';
+      const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+      const errorMessage = getUserFriendlyErrorMessage(
+        err,
+        statusCode,
+        { action: 'compare policies', resource: 'comparison' }
+      );
       setError(errorMessage);
     } finally {
       setIsLoading(false);

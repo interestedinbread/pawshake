@@ -5,6 +5,8 @@ import { SelectPolicy } from '../components/policy/SelectPolicy';
 import { ChatHistory, type ChatMessage } from '../components/qa/ChatHistory';
 import { ChatInput } from '../components/qa/ChatInput';
 import { Button } from '../components/common/Button';
+import { getUserFriendlyErrorMessage } from '../utils/errorMessages';
+import { ApiError } from '../api/apiClient';
 
 export function QAPage() {
   const [searchParams] = useSearchParams();
@@ -64,8 +66,12 @@ export function QAPage() {
     } catch (err) {
       // Remove loading message and show error
       setMessages((prev) => prev.filter((msg) => !msg.isLoading));
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to get answer. Please try again.';
+      const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+      const errorMessage = getUserFriendlyErrorMessage(
+        err,
+        statusCode,
+        { action: 'get answer', resource: 'answer' }
+      );
       setError(errorMessage);
     } finally {
       setIsLoading(false);

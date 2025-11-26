@@ -6,6 +6,8 @@ import { CoverageChecklistCard } from '../components/coverage/CoverageChecklistC
 import { Button } from '../components/common/Button';
 import { policyApi } from '../api/policyApi';
 import { generateChecklistPDF } from '../utils/checklistPdfGenerator';
+import { getUserFriendlyErrorMessage } from '../utils/errorMessages';
+import { ApiError } from '../api/apiClient';
 
 export function ClaimChecklistPage() {
   const [searchParams] = useSearchParams();
@@ -55,8 +57,12 @@ export function ClaimChecklistPage() {
       const result = await coverageApi.checkCoverage(policyId, incidentDescription);
       setChecklist(result);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to generate checklist. Please try again.';
+      const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+      const errorMessage = getUserFriendlyErrorMessage(
+        err,
+        statusCode,
+        { action: 'generate checklist', resource: 'checklist' }
+      );
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -136,7 +142,12 @@ export function ClaimChecklistPage() {
                   await generateChecklistPDF(checklist, incidentDescription, policyName);
                 } catch (error) {
                   console.error('Failed to generate PDF:', error);
-                  setError('Failed to generate PDF. Please try again.');
+                  const errorMessage = getUserFriendlyErrorMessage(
+                    error,
+                    undefined,
+                    { action: 'generate PDF', resource: 'PDF' }
+                  );
+                  setError(errorMessage);
                 }
               }}
             >
