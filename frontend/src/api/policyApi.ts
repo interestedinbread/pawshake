@@ -114,10 +114,27 @@ async function askComparisonQuestion(
   return apiClient.post<ComparisonAnswer>('/policies/compare/ask', body);
 }
 
+interface DeletePolicyResponse {
+  message: string;
+  policyId: string;
+  deletedDocuments: number;
+  deletedChunks: number;
+}
+
+/**
+ * Delete a policy.
+ * Wraps DELETE /api/policies/:policyId.
+ * This will also delete all associated documents, summaries, and embeddings.
+ */
+async function deletePolicy(policyId: string): Promise<DeletePolicyResponse> {
+  return apiClient.delete<DeletePolicyResponse>(`/policies/${policyId}`);
+}
+
 export const policyApi = {
   createPolicy,
   getPolicies,
   reExtractPolicySummary,
   getPolicyComparison,
   askComparisonQuestion,
+  deletePolicy,
 };

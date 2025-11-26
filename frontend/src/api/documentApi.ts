@@ -58,7 +58,25 @@ async function getPolicySummary(policyId: string): Promise<PolicySummaryResponse
   return apiClient.get<PolicySummaryResponse>(`/policies/${policyId}/summary`);
 }
 
+interface DeleteDocumentResponse {
+  message: string;
+  documentId: string;
+  filename: string;
+  policyId: string | null;
+  deletedChunks: number;
+}
+
+/**
+ * Delete a document.
+ * Wraps DELETE /api/documents/:documentId.
+ * This will also delete associated embeddings and may trigger policy summary re-extraction.
+ */
+async function deleteDocument(documentId: string): Promise<DeleteDocumentResponse> {
+  return apiClient.delete<DeleteDocumentResponse>(`/documents/${documentId}`);
+}
+
 export const documentApi = {
   uploadPolicy,
   getPolicySummary,
+  deleteDocument,
 };
