@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { coverageApi, type CoverageChecklist } from '../api/coverageApi';
 import { SelectPolicy } from '../components/policy/SelectPolicy';
 import { CoverageChecklistCard } from '../components/coverage/CoverageChecklistCard';
+import { ChecklistSkeleton } from '../components/coverage/ChecklistSkeleton';
 import { Button } from '../components/common/Button';
 import { policyApi } from '../api/policyApi';
 import { generateChecklistPDF } from '../utils/checklistPdfGenerator';
@@ -159,16 +160,7 @@ export function ClaimChecklistPage() {
       )}
 
       {/* Loading State */}
-      {isLoading && !checklist && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-center gap-3 py-8">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-600" />
-            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-600 [animation-delay:0.2s]" />
-            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-600 [animation-delay:0.4s]" />
-            <span className="ml-2 text-sm text-slate-600">Analyzing incident and generating checklist...</span>
-          </div>
-        </div>
-      )}
+      {isLoading && !checklist && <ChecklistSkeleton />}
     </div>
   );
 }
