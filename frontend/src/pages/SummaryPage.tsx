@@ -7,6 +7,7 @@ import { SummaryHeader } from '../components/policy/SummaryHeader';
 import { FinancialDetails } from '../components/policy/FinancialDetails';
 import { WaitingPeriods } from '../components/policy/WaitingPeriods';
 import { CoverageDetails } from '../components/policy/CoverageDetails';
+import { SummaryPageSkeleton } from '../components/policy/SummarySkeleton';
 import { Button } from '../components/common/Button';
 import { getUserFriendlyErrorMessage } from '../utils/errorMessages';
 import { ApiError } from '../api/apiClient';
@@ -143,11 +144,7 @@ export function SummaryPage() {
   }
 
   if (loading && !summary) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600 shadow-sm">
-        Loading policy summary…
-      </div>
-    );
+    return <SummaryPageSkeleton />;
   }
 
   if (error && !summary) {
