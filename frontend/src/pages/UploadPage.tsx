@@ -1,5 +1,6 @@
 import { FileUpload } from "../components/upload/FileUpload";
 import { UploadSuccess } from "../components/upload/UploadSuccess";
+import { UploadSuccessSkeleton } from "../components/upload/UploadSuccessSkeleton";
 import { documentApi, type UploadPolicyResponse } from "../api/documentApi";
 import { policyApi } from "../api/policyApi";
 import { Input } from "../components/common/Input";
@@ -135,6 +136,15 @@ export function UploadPage() {
                         </div>
                     </form>
                 </section>
+            </div>
+        );
+    }
+
+    // Show skeleton while uploading
+    if (isSubmitting && !uploadResponse) {
+        return (
+            <div className="max-w-4xl mx-auto">
+                <UploadSuccessSkeleton />
             </div>
         );
     }
