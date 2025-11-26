@@ -143,7 +143,8 @@ export function SummaryPage() {
     );
   }
 
-  if (loading && !summary) {
+  // Show skeleton when loading (either initial load or refresh)
+  if (loading) {
     return <SummaryPageSkeleton />;
   }
 
