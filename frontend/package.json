@@ -10,9 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.3.1",
     "@tailwindcss/vite": "^4.1.16",
+    "jspdf": "^3.0.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-loading-skeleton": "^3.5.0",
     "react-router-dom": "^7.9.5",
     "tailwindcss": "^4.1.16"
   },

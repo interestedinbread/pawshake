@@ -3,6 +3,8 @@ import { Input } from "../common/Input";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
+import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
+import { ApiError } from "../../api/apiClient";
 
 export function RegisterForm () {
     const [email, setEmail] = useState('')
@@ -35,7 +37,13 @@ export function RegisterForm () {
             await register(email, password)
         } catch (err) {
             console.error('Could not register user:', err)
-            setError(err instanceof Error ? err.message : 'Registration failed, please try again')
+            const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+            const errorMessage = getUserFriendlyErrorMessage(
+              err,
+              statusCode,
+              { action: 'register', resource: 'account' }
+            );
+            setError(errorMessage);
         } finally {
             setIsSubmitting(false)
         }

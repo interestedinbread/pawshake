@@ -3,6 +3,8 @@ import { Input } from "../common/Input";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
+import { ApiError } from "../../api/apiClient";
 
 export function LoginForm() {
     const [email, setEmail] = useState('');
@@ -22,7 +24,13 @@ export function LoginForm() {
             // You might want to redirect here or let parent component handle it
         } catch (err) {
             // Handle error - login function throws on failure
-            setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+            const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+            const errorMessage = getUserFriendlyErrorMessage(
+              err,
+              statusCode,
+              { action: 'log in', resource: 'account' }
+            );
+            setError(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

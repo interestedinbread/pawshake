@@ -1,11 +1,14 @@
 import { FileUpload } from "../components/upload/FileUpload";
 import { UploadSuccess } from "../components/upload/UploadSuccess";
+import { UploadSuccessSkeleton } from "../components/upload/UploadSuccessSkeleton";
 import { documentApi, type UploadPolicyResponse } from "../api/documentApi";
 import { policyApi } from "../api/policyApi";
 import { Input } from "../components/common/Input";
 import { Button } from "../components/common/Button";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { getUserFriendlyErrorMessage } from "../utils/errorMessages";
+import { ApiError } from "../api/apiClient";
 
 type Step = 'create' | 'upload' | 'success';
 
@@ -31,7 +34,12 @@ export function UploadPage() {
             setCreatedPolicyName(response.result.name);
             setStep('upload');
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to create policy. Please try again.';
+            const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+            const message = getUserFriendlyErrorMessage(
+                err,
+                statusCode,
+                { action: 'create policy', resource: 'policy' }
+            );
             setError(message);
             console.error('Error creating policy:', err);
         } finally {
@@ -128,6 +136,15 @@ export function UploadPage() {
                         </div>
                     </form>
                 </section>
+            </div>
+        );
+    }
+
+    // Show skeleton while uploading
+    if (isSubmitting && !uploadResponse) {
+        return (
+            <div className="max-w-4xl mx-auto">
+                <UploadSuccessSkeleton />
             </div>
         );
     }

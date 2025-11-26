@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 import { Button } from '../common/Button';
 import type { ChangeEvent, DragEvent, FormEvent } from 'react';
+import { getUserFriendlyErrorMessage } from '../../utils/errorMessages';
+import { ApiError } from '../../api/apiClient';
 
 interface FileUploadProps {
   onSubmit: (files: File[]) => Promise<void> | void;
@@ -120,10 +122,12 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10,
       // Clear selected files after successful upload
       setSelectedFiles([]);
     } catch (submissionError) {
-      const message =
-        submissionError instanceof Error
-          ? submissionError.message
-          : 'Failed to upload policy. Please try again.';
+      const statusCode = submissionError instanceof ApiError ? submissionError.statusCode : undefined;
+      const message = getUserFriendlyErrorMessage(
+        submissionError,
+        statusCode,
+        { action: 'upload files', resource: 'files' }
+      );
       setError(message);
     }
   };

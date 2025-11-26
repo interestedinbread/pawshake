@@ -12,7 +12,8 @@ const navLinks = [
   { label: 'Upload', to: '/upload' },
   { label: 'Summary', to: '/summary' },
   { label: 'Q&A', to: '/qa' },
-  { label: 'Claims', to: '/claims'}
+  { label: 'Compare', to: '/compare' },
+  { label: 'Claim Checklist', to: '/claim-checklist'}
 ];
 
 export function Layout({ children }: LayoutProps) {

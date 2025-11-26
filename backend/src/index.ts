@@ -11,7 +11,6 @@ import authRoutes from './routes/authRoutes'
 import documentRoutes from './routes/documentRoutes'
 import policyRoutes from './routes/policyRoutes'
 import qaRoutes from './routes/qaRoutes'
-import claimRoutes from './routes/claimRoutes'
 
 const app = express()
 const ALLOWED_ORIGIN = process.env.CORS_ORIGIN || '*'
@@ -32,7 +31,6 @@ app.use('/api/auth', authRoutes)
 app.use('/api/documents', documentRoutes)
 app.use('/api/policies', policyRoutes)
 app.use('/api/qa', qaRoutes)
-app.use('/api/claims', claimRoutes)
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 

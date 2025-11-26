@@ -61,7 +61,6 @@ export function ChatHistory({ messages, maxMessages }: ChatHistoryProps) {
           key={message.id}
           role={message.role}
           content={message.content}
-          sources={message.sources}
           timestamp={message.timestamp}
           isLoading={message.isLoading}
         />

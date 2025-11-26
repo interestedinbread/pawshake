@@ -32,12 +32,19 @@ const actions: ActionItem[] = [
     variant: 'outline',
   },
   {
-    title: 'Start Trupanion claim draft',
-    description: 'Begin the guided claim flow tailored for Trupanion policies.',
-    icon: '🚀',
-    route: '/claims/trupanion',
+    title: 'Compare policies',
+    description: 'Ask questions to compare two policies side by side.',
+    icon: '⚖️',
+    route: '/compare',
     variant: 'outline',
   },
+  {
+    title: 'Create claim checklist',
+    description: 'Describe an incident and generate a checklist with required documents and action steps',
+    icon: "📋",
+    route: '/claim-checklist',
+    variant: 'outline'
+  }
 ];
 
 export function QuickActionsCard() {

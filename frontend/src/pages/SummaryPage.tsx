@@ -7,7 +7,10 @@ import { SummaryHeader } from '../components/policy/SummaryHeader';
 import { FinancialDetails } from '../components/policy/FinancialDetails';
 import { WaitingPeriods } from '../components/policy/WaitingPeriods';
 import { CoverageDetails } from '../components/policy/CoverageDetails';
+import { SummaryPageSkeleton } from '../components/policy/SummarySkeleton';
 import { Button } from '../components/common/Button';
+import { getUserFriendlyErrorMessage } from '../utils/errorMessages';
+import { ApiError } from '../api/apiClient';
 
 interface PolicySummaryData {
   planName?: string | null;
@@ -73,8 +76,12 @@ export function SummaryPage() {
         setMetadata(response.metadata);
       } catch (err) {
         if (!isMounted) return;
-        const message =
-          err instanceof Error ? err.message : 'Failed to load policy summary. Please try again.';
+        const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+        const message = getUserFriendlyErrorMessage(
+          err,
+          statusCode,
+          { action: 'load policy summary', resource: 'policy summary' }
+        );
         setError(message);
       } finally {
         if (isMounted) {
@@ -106,8 +113,12 @@ export function SummaryPage() {
       setSummary(response.summary as PolicySummaryData);
       setMetadata(response.metadata);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to refresh policy summary. Please try again.';
+      const statusCode = err instanceof ApiError ? err.statusCode : undefined;
+      const message = getUserFriendlyErrorMessage(
+        err,
+        statusCode,
+        { action: 'refresh policy summary', resource: 'policy summary' }
+      );
       setError(message);
     } finally {
       setLoading(false);
@@ -132,12 +143,9 @@ export function SummaryPage() {
     );
   }
 
-  if (loading && !summary) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600 shadow-sm">
-        Loading policy summary…
-      </div>
-    );
+  // Show skeleton when loading (either initial load or refresh)
+  if (loading) {
+    return <SummaryPageSkeleton />;
   }
 
   if (error && !summary) {
