@@ -3,6 +3,7 @@ import { policyApi } from "../../api/policyApi";
 import { Button } from "../common/Button";
 import { getUserFriendlyErrorMessage } from "../../utils/errorMessages";
 import { ApiError } from "../../api/apiClient";
+import { SelectTwoPoliciesSkeleton } from "./PolicySelectionSkeleton";
 
 interface SelectTwoPoliciesProps {
   onSelect: (policyId1: string, policyId2: string) => void;
@@ -85,11 +86,7 @@ export function SelectTwoPolicies({ onSelect }: SelectTwoPoliciesProps) {
   };
 
   if (isLoading) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600 shadow-sm">
-        <p>Loading your policies...</p>
-      </div>
-    );
+    return <SelectTwoPoliciesSkeleton />;
   }
 
   if (error) {
