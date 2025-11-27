@@ -68,7 +68,6 @@ export async function storeChunks(chunks: TextChunk[], documentId: string, polic
       metadatas: metadatas,
     });
 
-    console.log(`Stored ${chunks.length} chunks for document ${documentId}`);
   } catch (error) {
     throw new Error(`Failed to store chunks in vector database: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -176,7 +175,6 @@ export async function deleteChunksByDocumentId(documentId: string): Promise<numb
     if (results.ids && results.ids.length > 0) {
       // Delete all chunks for this document
       await collection.delete({ ids: results.ids });
-      console.log(`Deleted ${results.ids.length} chunks for document ${documentId}`);
       return results.ids.length;
     }
     
@@ -203,7 +201,6 @@ export async function deleteChunksByPolicyId(policyId: string): Promise<number> 
     if (results.ids && results.ids.length > 0) {
       // Delete all chunks for this policy
       await collection.delete({ ids: results.ids });
-      console.log(`Deleted ${results.ids.length} chunks for policy ${policyId}`);
       return results.ids.length;
     }
     

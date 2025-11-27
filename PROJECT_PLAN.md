@@ -97,3 +97,9 @@ Chroma (vector db)
 JWT
 bcrypt
 OpenAI
+
+UI styles:
+
+primary color #F4A261
+deep accent for contrast #264653
+neutral background #FAF9F7
