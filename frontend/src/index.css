@@ -1,1 +1,26 @@
 @import "tailwindcss";
+
+@theme {
+  /* Your brand colors */
+  --color-primary: #F4A261;
+  --color-accent: #264653;
+  --color-neutral: #FAF9F7;
+  
+  /* Additional suggested colors */
+  --color-light-accent: #E9C46A;
+  --color-muted-teal: #2A9D8F;
+  
+  /* Dark mode colors */
+  --color-dark-bg: #0F172A;        /* Very dark slate (slate-900) */
+  --color-dark-surface: #1E293B;    /* Dark slate (slate-800) */
+  --color-dark-card: #334155;      /* Medium dark slate (slate-700) */
+  --color-dark-border: #475569;    /* Lighter slate for borders (slate-600) */
+  --color-dark-text-primary: #F1F5F9;  /* Very light text (slate-100) */
+  --color-dark-text-secondary: #CBD5E1; /* Medium light text (slate-300) */
+  --color-dark-text-muted: #94A3B8;     /* Muted text (slate-400) */
+  
+  /* Color aliases for easier use */
+  --color-brand-primary: var(--color-primary);
+  --color-brand-accent: var(--color-accent);
+  --color-brand-neutral: var(--color-neutral);
+}

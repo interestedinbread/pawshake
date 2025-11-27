@@ -1,5 +1,5 @@
 // Button.tsx
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import React, { type ButtonHTMLAttributes, type ReactNode } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -24,10 +24,21 @@ export function Button({
   
   // Variant styles
   const variants = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700',
+    primary: 'text-white hover:opacity-90 focus:ring-2 focus:ring-[var(--color-primary)]',
     secondary: 'bg-gray-600 text-white hover:bg-gray-700',
     danger: 'bg-red-600 text-white hover:bg-red-700',
-    outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50',
+    outline: 'border-2 hover:bg-[var(--color-accent)]/10 focus:ring-2 focus:ring-[var(--color-accent)]',
+  };
+  
+  // Inline styles for custom colors (since Tailwind v4 @theme may need explicit variable usage)
+  const variantStyles: Record<string, React.CSSProperties> = {
+    primary: {
+      backgroundColor: 'var(--color-primary)',
+    },
+    outline: {
+      borderColor: 'var(--color-accent)',
+      color: 'var(--color-accent)',
+    },
   };
   
   // Size styles
@@ -47,9 +58,12 @@ export function Button({
     ${className}
   `.trim().replace(/\s+/g, ' ');
 
+  const style = variantStyles[variant] || {};
+
   return (
     <button
       className={classes}
+      style={style}
       disabled={disabled || isLoading}
       {...props}
     >
