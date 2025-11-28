@@ -20,16 +20,18 @@ export function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-dark-bg)' }}>
-      <header className="border-b" style={{ backgroundColor: 'var(--color-dark-surface)', borderColor: 'var(--color-dark-border)' }}>
+    <div className="min-h-screen flex flex-col bg-[var(--color-dark-bg)]">
+      <header className="border-b bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full font-semibold" style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-dark-bg)' }}>
-              PI
+            <div className="flex h-10 w-10 items-center justify-center rounded-full">
+              <img 
+                src="noun-paw-print.svg"
+                className='h-auto w-auto'/>
             </div>
             <div>
-              <p className="text-lg font-semibold" style={{ color: 'var(--color-dark-text-primary)' }}>Pet Insurance Assistant</p>
-              <p className="text-sm" style={{ color: 'var(--color-dark-text-secondary)' }}>Understand policies • File claims faster</p>
+              <p className="text-lg font-semibold text-[var(--color-dark-text-primary)]">Pet Insurance Assistant</p>
+              <p className="text-sm text-[var(--color-dark-text-secondary)]">Understand policies • File claims faster</p>
             </div>
           </div>
 
@@ -52,8 +54,8 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-3">
             {user && (
               <div className="hidden flex-col text-right md:flex">
-                <span className="text-sm font-semibold" style={{ color: 'var(--color-dark-text-primary)' }}>{user.email}</span>
-                <span className="text-xs" style={{ color: 'var(--color-dark-text-muted)' }}>Authenticated user</span>
+                <span className="text-sm font-semibold text-[var(--color-dark-text-primary)]">{user.email}</span>
+                <span className="text-xs text-[var(--color-dark-text-muted)]">Authenticated user</span>
               </div>
             )}
             <Button variant="outline" size="sm" onClick={logout}>
@@ -63,7 +65,7 @@ export function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Mobile navigation */}
-        <nav className="border-t md:hidden" style={{ backgroundColor: 'var(--color-dark-surface)', borderColor: 'var(--color-dark-border)' }}>
+        <nav className="border-t md:hidden bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
           <div className="flex justify-around px-2 py-3">
             {navLinks.map((link) => (
               <NavLink
@@ -86,8 +88,8 @@ export function Layout({ children }: LayoutProps) {
         <div className="mx-auto w-full max-w-6xl px-4 py-8">{children}</div>
       </main>
 
-      <footer className="border-t" style={{ backgroundColor: 'var(--color-dark-surface)', borderColor: 'var(--color-dark-border)' }}>
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-4 text-sm md:flex-row" style={{ color: 'var(--color-dark-text-muted)' }}>
+      <footer className="border-t bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-4 text-sm md:flex-row text-[var(--color-dark-text-muted)]">
           <span>© {new Date().getFullYear()} Pet Insurance Assistant.</span>
           <span>Build smarter claim experiences for pet owners.</span>
         </div>

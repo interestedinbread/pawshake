@@ -66,7 +66,7 @@ export function SelectPolicy({ onSelect }: SelectPolicyProps) {
 
   if (error) {
     return (
-      <div className="space-y-4 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+      <div className="space-y-4 rounded-2xl border p-6 border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
         <p className="font-semibold">Unable to load your policies.</p>
         <p className="text-sm">{error}</p>
       </div>
@@ -75,7 +75,7 @@ export function SelectPolicy({ onSelect }: SelectPolicyProps) {
 
   if (policies.length === 0) {
     return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-800">
+      <div className="rounded-2xl border p-6 border-[rgba(245,158,11,0.5)] bg-[rgba(245,158,11,0.1)] text-[#fbbf24]">
         <p className="font-medium">No policies found.</p>
         <p className="text-sm">
           Create a policy and upload documents first, then you&apos;ll be able to view a summary
@@ -86,10 +86,10 @@ export function SelectPolicy({ onSelect }: SelectPolicyProps) {
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+    <section className="rounded-2xl border p-6 shadow-sm space-y-4 bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <header className="space-y-1">
-        <h2 className="text-xl font-semibold text-slate-900">Choose a policy</h2>
-        <p className="text-sm text-slate-600">
+        <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Choose a policy</h2>
+        <p className="text-sm text-[var(--color-dark-text-secondary)]">
           Select one of your policy bundles below to proceed.
         </p>
       </header>
@@ -98,13 +98,13 @@ export function SelectPolicy({ onSelect }: SelectPolicyProps) {
         {policies.map((policy) => (
           <div
             key={policy.id}
-            className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+            className="flex items-center justify-between rounded-lg border px-4 py-3 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]"
           >
             <div className="space-y-1">
-              <p className="text-sm font-medium text-slate-900">
+              <p className="text-sm font-medium text-[var(--color-dark-text-primary)]">
                 {policy.name || "Untitled policy"}
               </p>
-              <p className="text-xs text-slate-600">
+              <p className="text-xs text-[var(--color-dark-text-secondary)]">
                 {policy.documentCount} document{policy.documentCount === 1 ? "" : "s"}
                 {policy.summaryUpdatedAt
                   ? ` • Summary updated`

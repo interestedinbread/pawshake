@@ -51,11 +51,11 @@ export function QuickActionsCard() {
   const navigate = useNavigate();
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <header className="mb-5 flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-semibold text-slate-900">Quick actions</h3>
-          <p className="text-sm text-slate-600">
+          <h3 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Quick actions</h3>
+          <p className="text-sm text-[var(--color-dark-text-secondary)]">
             Shortcuts to the most common workflows.
           </p>
         </div>
@@ -65,15 +65,15 @@ export function QuickActionsCard() {
         {actions.map(({ title, description, icon, route, variant }) => (
           <div
             key={title}
-            className="flex flex-col justify-between rounded-xl border border-slate-200 p-4 hover:border-blue-200 hover:shadow-sm"
+            className="flex flex-col justify-between rounded-xl border p-4 transition-colors bg-[var(--color-dark-card)] border-[var(--color-dark-border)] hover:border-[var(--color-primary)]"
           >
             <div className="mb-4 flex items-start gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-2xl">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg text-2xl bg-[rgba(244,162,97,0.15)]">
                 {icon}
               </span>
               <div>
-                <p className="text-base font-semibold text-slate-900">{title}</p>
-                <p className="text-sm text-slate-600">{description}</p>
+                <p className="text-base font-semibold text-[var(--color-dark-text-primary)]">{title}</p>
+                <p className="text-sm text-[var(--color-dark-text-secondary)]">{description}</p>
               </div>
             </div>
             <Button

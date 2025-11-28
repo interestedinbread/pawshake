@@ -90,13 +90,13 @@ export function QAPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white px-6 py-4">
+      <div className="border-b px-6 py-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">Ask about your policy</h1>
-            <p className="mt-1 text-sm text-slate-600">
+            <h1 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Ask about your policy</h1>
+            <p className="mt-1 text-sm text-[var(--color-dark-text-secondary)]">
               Get answers to questions about your policy coverage, limits, and more.
             </p>
           </div>
@@ -113,7 +113,7 @@ export function QAPage() {
 
       {/* Error message */}
       {error && (
-        <div className="mx-6 mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+        <div className="mx-6 mt-4 rounded-lg border p-3 text-sm border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
           {error}
         </div>
       )}
@@ -124,7 +124,7 @@ export function QAPage() {
       </div>
 
       {/* Chat input */}
-      <div className="border-t border-slate-200 bg-white p-4">
+      <div className="border-t p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
         <ChatInput onSubmit={handleAskQuestion} isLoading={isLoading} disabled={!policyId} />
       </div>
     </div>

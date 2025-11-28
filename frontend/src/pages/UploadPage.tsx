@@ -85,17 +85,17 @@ export function UploadPage() {
     if (step === 'create') {
         return (
             <div className="max-w-2xl mx-auto">
-                <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <section className="rounded-2xl border shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
                     <form onSubmit={handleCreatePolicy} className="flex flex-col gap-6 p-6">
                         <header className="space-y-2">
-                            <h2 className="text-2xl font-semibold text-slate-900">Create Policy Bundle</h2>
-                            <p className="text-sm text-slate-600">
+                            <h2 className="text-2xl font-semibold text-[var(--color-dark-text-primary)]">Create Policy Bundle</h2>
+                            <p className="text-sm text-[var(--color-dark-text-secondary)]">
                                 Give your policy bundle a name to organize your documents. You can add multiple PDFs to the same bundle.
                             </p>
                         </header>
 
                         {error && (
-                            <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600">
+                            <div className="rounded-lg border px-3 py-2 text-sm border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
                                 {error}
                             </div>
                         )}
@@ -184,7 +184,7 @@ export function UploadPage() {
                 </div>
             )}
 
-            <FileUpload
+            <FileUpload 
                 onSubmit={handleUpload}
                 isSubmitting={isSubmitting}
             />

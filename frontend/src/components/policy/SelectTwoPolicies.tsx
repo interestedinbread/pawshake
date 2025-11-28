@@ -91,7 +91,7 @@ export function SelectTwoPolicies({ onSelect }: SelectTwoPoliciesProps) {
 
   if (error) {
     return (
-      <div className="space-y-4 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+      <div className="space-y-4 rounded-2xl border p-6 border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
         <p className="font-semibold">Unable to load your policies.</p>
         <p className="text-sm">{error}</p>
       </div>
@@ -100,7 +100,7 @@ export function SelectTwoPolicies({ onSelect }: SelectTwoPoliciesProps) {
 
   if (policies.length === 0) {
     return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-800">
+      <div className="rounded-2xl border p-6 border-[rgba(245,158,11,0.5)] bg-[rgba(245,158,11,0.1)] text-[#fbbf24]">
         <p className="font-medium">No policies found.</p>
         <p className="text-sm">
           Create at least two policy bundles with uploaded documents to compare them here.
@@ -110,10 +110,10 @@ export function SelectTwoPolicies({ onSelect }: SelectTwoPoliciesProps) {
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+    <section className="rounded-2xl border p-6 shadow-sm space-y-4 bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <header className="space-y-1">
-        <h2 className="text-xl font-semibold text-slate-900">Choose two policies to compare</h2>
-        <p className="text-sm text-slate-600">
+        <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Choose two policies to compare</h2>
+        <p className="text-sm text-[var(--color-dark-text-secondary)]">
           Select exactly two of your policy bundles below. You&apos;ll be able to ask comparison
           questions about them on the next screen.
         </p>
@@ -130,15 +130,15 @@ export function SelectTwoPolicies({ onSelect }: SelectTwoPoliciesProps) {
               onClick={() => toggleSelection(policy.id)}
               className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left transition-colors ${
                 isSelected
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                  ? 'bg-[rgba(244,162,97,0.2)] border-[var(--color-primary)]'
+                  : 'bg-[var(--color-dark-card)] border-[var(--color-dark-border)] hover:border-[var(--color-primary)]'
               }`}
             >
               <div className="space-y-1">
-                <p className="text-sm font-medium text-slate-900">
+                <p className="text-sm font-medium text-[var(--color-dark-text-primary)]">
                   {policy.name || "Untitled policy"}
                 </p>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-[var(--color-dark-text-secondary)]">
                   {policy.documentCount} document{policy.documentCount === 1 ? "" : "s"}
                   {policy.summaryUpdatedAt
                     ? " • Summary updated"
@@ -150,8 +150,8 @@ export function SelectTwoPolicies({ onSelect }: SelectTwoPoliciesProps) {
               <span
                 className={`ml-4 flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold ${
                   isSelected
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-slate-300 bg-white text-slate-500"
+                    ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-[var(--color-dark-bg)]'
+                    : 'bg-[var(--color-dark-card)] border-[var(--color-dark-border)] text-[var(--color-dark-text-muted)]'
                 }`}
               >
                 {isSelected ? "✓" : " "}
@@ -162,7 +162,7 @@ export function SelectTwoPolicies({ onSelect }: SelectTwoPoliciesProps) {
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[var(--color-dark-text-muted)]">
           Selected {selectedIds.length} / 2.{" "}
           {selectedIds.length < 2 ? "Choose two policies to enable comparison." : ""}
         </p>

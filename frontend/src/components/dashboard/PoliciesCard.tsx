@@ -97,21 +97,21 @@ export function PoliciesCard() {
 
   if (isLoading) {
     return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <header className="mb-4">
-          <h3 className="text-xl font-semibold text-slate-900">My Policies</h3>
+          <h3 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">My Policies</h3>
         </header>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+              className="flex items-center justify-between rounded-lg border px-4 py-3 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]"
             >
               <div className="flex-1 space-y-2">
-                <div className="h-4 w-32 bg-slate-200 rounded animate-pulse" />
-                <div className="h-3 w-24 bg-slate-200 rounded animate-pulse" />
+                <div className="h-4 w-32 rounded animate-pulse bg-[var(--color-dark-border)]" />
+                <div className="h-3 w-24 rounded animate-pulse bg-[var(--color-dark-border)]" />
               </div>
-              <div className="h-8 w-16 bg-slate-200 rounded animate-pulse" />
+              <div className="h-8 w-16 rounded animate-pulse bg-[var(--color-dark-border)]" />
             </div>
           ))}
         </div>
@@ -121,11 +121,11 @@ export function PoliciesCard() {
 
   return (
     <>
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <header className="mb-5 flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-semibold text-slate-900">My Policies</h3>
-            <p className="text-sm text-slate-600">
+            <h3 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">My Policies</h3>
+            <p className="text-sm text-[var(--color-dark-text-secondary)]">
               Manage your policy bundles and documents.
             </p>
           </div>
@@ -139,15 +139,15 @@ export function PoliciesCard() {
         </header>
 
         {error && (
-          <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+          <div className="mb-4 rounded-lg border p-3 text-sm border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
             {error}
           </div>
         )}
 
         {policies.length === 0 ? (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center">
-            <p className="font-medium text-amber-900 mb-2">No policies yet</p>
-            <p className="text-sm text-amber-700 mb-4">
+          <div className="rounded-lg border p-6 text-center border-[rgba(245,158,11,0.5)] bg-[rgba(245,158,11,0.1)]">
+            <p className="font-medium mb-2 text-[#fbbf24]">No policies yet</p>
+            <p className="text-sm mb-4 text-[#fcd34d]">
               Create your first policy bundle to get started.
             </p>
             <Button
@@ -163,28 +163,28 @@ export function PoliciesCard() {
             {policies.map((policy) => (
               <div
                 key={policy.id}
-                className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 transition-colors hover:border-slate-300"
+                className="flex items-center justify-between rounded-lg border px-4 py-3 transition-colors bg-[var(--color-dark-card)] border-[var(--color-dark-border)] hover:border-[var(--color-primary)]"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm font-medium text-slate-900 truncate">
+                    <p className="text-sm font-medium truncate text-[var(--color-dark-text-primary)]">
                       {policy.name || 'Untitled policy'}
                     </p>
                     {policy.summaryConfidence && (
                       <span
                         className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                           policy.summaryConfidence === 'high'
-                            ? 'bg-emerald-100 text-emerald-700'
+                            ? 'bg-[rgba(16,185,129,0.2)] text-[#6ee7b7]'
                             : policy.summaryConfidence === 'medium'
-                              ? 'bg-amber-100 text-amber-700'
-                              : 'bg-rose-100 text-rose-700'
+                              ? 'bg-[rgba(245,158,11,0.2)] text-[#fbbf24]'
+                              : 'bg-[rgba(239,68,68,0.2)] text-[#fca5a5]'
                         }`}
                       >
                         {policy.summaryConfidence}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-600">
+                  <p className="text-xs text-[var(--color-dark-text-secondary)]">
                     {policy.documentCount} document{policy.documentCount === 1 ? '' : 's'} • {getSummaryStatus(policy)}
                   </p>
                 </div>

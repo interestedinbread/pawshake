@@ -92,18 +92,18 @@ export function ComparePoliciesPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white px-6 py-4">
-        <h1 className="text-xl font-semibold text-slate-900">Compare policies</h1>
-        <p className="mt-1 text-sm text-slate-600">
+      <div className="border-b px-6 py-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
+        <h1 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Compare policies</h1>
+        <p className="mt-1 text-sm text-[var(--color-dark-text-secondary)]">
           Ask questions to compare your two selected policies side by side.
         </p>
       </div>
 
       {/* Error message */}
       {error && (
-        <div className="mx-6 mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+        <div className="mx-6 mt-4 rounded-lg border p-3 text-sm border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
           {error}
         </div>
       )}

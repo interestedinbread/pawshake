@@ -27,7 +27,7 @@ export function Button({
     primary: 'text-white hover:opacity-90 focus:ring-2 focus:ring-[var(--color-primary)]',
     secondary: 'bg-gray-600 text-white hover:bg-gray-700',
     danger: 'bg-red-600 text-white hover:bg-red-700',
-    outline: 'border-2 hover:bg-[var(--color-accent)]/10 focus:ring-2 focus:ring-[var(--color-accent)]',
+    outline: 'border-2 hover:bg-[var(--color-primary)]/10 focus:ring-2 focus:ring-[var(--color-primary)]',
   };
   
   // Inline styles for custom colors (since Tailwind v4 @theme may need explicit variable usage)
@@ -36,8 +36,8 @@ export function Button({
       backgroundColor: 'var(--color-primary)',
     },
     outline: {
-      borderColor: 'var(--color-accent)',
-      color: 'var(--color-accent)',
+      borderColor: 'var(--color-primary)',
+      color: 'var(--color-primary)',
     },
   };
   

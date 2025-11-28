@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Prevent vertical overscroll bounce effect */
+html {
+  overscroll-behavior-y: none;
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
 @theme {
   /* Your brand colors */
   --color-primary: #F4A261;

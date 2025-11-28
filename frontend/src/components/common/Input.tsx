@@ -31,14 +31,14 @@ export function Input({
   // Error state styles
   const errorStyles = error
     ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
+    : 'focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]';
   
   // Padding adjustments for icons
   const paddingStyles = leftIcon ? 'pl-10' : 'pl-3';
   const paddingRightStyles = rightIcon ? 'pr-10' : 'pr-3';
   
   // Disabled state
-  const disabledStyles = props.disabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-white';
+  const disabledStyles = props.disabled ? 'cursor-not-allowed opacity-60' : '';
   
   // Combine all input styles
   const inputClasses = `
@@ -59,7 +59,7 @@ export function Input({
         <label
           htmlFor={inputId}
           id={labelId}
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className="block text-sm font-medium mb-1 text-[var(--color-dark-text-primary)]"
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
@@ -78,7 +78,7 @@ export function Input({
         {/* Input element */}
         <input
           id={inputId}
-          className={inputClasses}
+          className={`${inputClasses} ${error ? '' : 'border-[var(--color-dark-border)]'} bg-[var(--color-dark-card)] text-[var(--color-dark-text-primary)]`}
           aria-invalid={error ? 'true' : 'false'}
           aria-describedby={
             error ? `error-${inputId}` : helperText ? `helper-${inputId}` : undefined
@@ -110,7 +110,7 @@ export function Input({
       {helperText && !error && (
         <p
           id={`helper-${inputId}`}
-          className="mt-1 text-sm text-gray-500"
+          className="mt-1 text-sm text-[var(--color-dark-text-muted)]"
         >
           {helperText}
         </p>

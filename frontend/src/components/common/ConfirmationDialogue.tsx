@@ -59,24 +59,28 @@ const variantConfig: Record<ConfirmationVariant, {
   iconColor: string;
   bgColor: string;
   borderColor: string;
+  textColor: string;
 }> = {
   danger: {
     icon: '⚠️',
-    iconColor: 'text-rose-600',
-    bgColor: 'bg-rose-50',
-    borderColor: 'border-rose-200',
+    iconColor: '#fca5a5',
+    bgColor: 'rgba(239, 68, 68, 0.15)',
+    borderColor: 'rgba(239, 68, 68, 0.5)',
+    textColor: '#fca5a5',
   },
   warning: {
     icon: '⚠️',
-    iconColor: 'text-amber-600',
-    bgColor: 'bg-amber-50',
-    borderColor: 'border-amber-200',
+    iconColor: '#fbbf24',
+    bgColor: 'rgba(245, 158, 11, 0.15)',
+    borderColor: 'rgba(245, 158, 11, 0.5)',
+    textColor: '#fcd34d',
   },
   info: {
     icon: 'ℹ️',
-    iconColor: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
+    iconColor: '#60a5fa',
+    bgColor: 'rgba(59, 130, 246, 0.15)',
+    borderColor: 'rgba(59, 130, 246, 0.5)',
+    textColor: '#93c5fd',
   },
 };
 
@@ -163,19 +167,19 @@ export function ConfirmationDialogue({
     >
       <div
         ref={dialogRef}
-        className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl"
+        className="w-full max-w-md rounded-2xl border shadow-xl bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className={`rounded-t-2xl border-b ${config.borderColor} ${config.bgColor} px-6 py-4`}>
+        <div className="rounded-t-2xl border-b px-6 py-4" style={{ backgroundColor: config.bgColor, borderColor: config.borderColor }}>
           <div className="flex items-start gap-4">
-            <div className={`flex-shrink-0 text-2xl ${config.iconColor}`}>
+            <div className="flex-shrink-0 text-2xl" style={{ color: config.iconColor }}>
               {config.icon}
             </div>
             <div className="flex-1">
               <h2
                 id="confirmation-dialog-title"
-                className="text-xl font-semibold text-slate-900"
+                className="text-xl font-semibold text-[var(--color-dark-text-primary)]"
               >
                 {title}
               </h2>
@@ -187,19 +191,19 @@ export function ConfirmationDialogue({
         <div className="px-6 py-4">
           <p
             id="confirmation-dialog-message"
-            className="text-sm text-slate-700 leading-relaxed"
+            className="text-sm leading-relaxed text-[var(--color-dark-text-secondary)]"
           >
             {message}
           </p>
           {details && (
-            <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-              <p className="text-xs text-slate-600 leading-relaxed">{details}</p>
+            <div className="mt-3 rounded-lg border px-3 py-2 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
+              <p className="text-xs leading-relaxed" style={{ color: config.textColor }}>{details}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t px-6 py-4 sm:flex-row sm:justify-end bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
           <Button
             variant="outline"
             size="md"
