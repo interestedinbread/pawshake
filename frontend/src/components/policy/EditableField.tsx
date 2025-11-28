@@ -6,6 +6,7 @@ interface EditableFieldProps {
   helperText?: string;
   editable?: boolean;
   onEdit?: (value: string) => void;
+  highlight?: boolean;
 }
 
 export function EditableField({
@@ -14,6 +15,7 @@ export function EditableField({
   helperText,
   editable = false,
   onEdit,
+  highlight = false,
 }: EditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftValue, setDraftValue] = useState(String(value ?? ''));
@@ -38,7 +40,7 @@ export function EditableField({
             onChange={(event) => setDraftValue(event.target.value)}
           />
         ) : (
-          <p className="text-base text-[var(--color-dark-text-primary)]">{value ?? 'Unknown'}</p>
+          <p className={`text-base ${highlight ? 'text-[var(--color-primary)] font-semibold' : 'text-[var(--color-dark-text-primary)]'}`}>{value ?? 'Unknown'}</p>
         )}
         {canEdit && (
           <button

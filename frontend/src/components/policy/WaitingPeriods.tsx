@@ -54,11 +54,11 @@ export function WaitingPeriods({ waitingPeriod, confidence, sources, onEdit }: W
   ];
 
   return (
-    <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
-      <header className="mb-4 flex items-center justify-between">
+    <section className="rounded-2xl border p-6 shadow-lg bg-gradient-to-r from-[var(--color-primary)]/5 to-[var(--color-dark-surface)] border-[var(--color-dark-border)] hover:border-[var(--color-primary)]/50 transition-colors">
+      <header className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Waiting periods</h2>
-          <p className="text-sm text-[var(--color-dark-text-secondary)]">
+          <h2 className="text-2xl font-semibold text-[var(--color-dark-text-primary)] font-['Nunito']">Waiting periods</h2>
+          <p className="text-sm text-[var(--color-dark-text-secondary)] mt-1">
             Time before coverage begins for different conditions.
           </p>
         </div>
@@ -72,14 +72,15 @@ export function WaitingPeriods({ waitingPeriod, confidence, sources, onEdit }: W
           const fieldSources = sources?.[key];
 
           return (
-            <div key={key} className="space-y-3 rounded-xl border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
-              <div className="flex items-center justify-between">
+            <div key={key} className="space-y-4 rounded-xl border p-5 bg-[var(--color-dark-card)] border-[var(--color-dark-border)] hover:border-[var(--color-primary)]/30 hover:shadow-md transition-all">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">{label}</h3>
                 {fieldConfidence && <ConfidenceBadge level={fieldConfidence} />}
               </div>
               <EditableField
                 value={formatDays(value)}
                 onEdit={onEdit ? (newValue) => onEdit(`waitingPeriod.${key}`, newValue) : undefined}
+                highlight
               />
               {fieldSources && fieldSources.length > 0 && (
                 <SourceCitation sources={fieldSources} />

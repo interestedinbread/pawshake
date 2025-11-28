@@ -32,6 +32,10 @@ export interface UploadPolicyResponse {
 }
 
 interface PolicySummaryResponse {
+  policy: {
+    id: string;
+    name: string | null;
+  };
   summary: unknown;
   metadata: {
     createdAt: string;

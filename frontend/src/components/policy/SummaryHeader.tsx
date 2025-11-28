@@ -27,11 +27,11 @@ export function SummaryHeader({
   const displayPolicyNumber = policyNumber || 'Unknown policy number';
 
   return (
-    <header className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
+    <header className="rounded-2xl border p-6 shadow-lg bg-gradient-to-r from-[var(--color-primary)]/10 via-[var(--color-dark-surface)] to-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-sm font-medium text-[var(--color-primary)]">Policy summary</p>
-          <h1 className="mt-1 text-3xl font-semibold text-[var(--color-dark-text-primary)]">{displayPlan}</h1>
+          <h1 className="mt-1 text-4xl font-semibold text-[var(--color-dark-text-primary)] font-['Nunito']">{displayPlan}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-[var(--color-dark-text-secondary)]">
             <span>{displayInsurer}</span>
             <span className="hidden text-[var(--color-dark-border)] sm:inline">•</span>

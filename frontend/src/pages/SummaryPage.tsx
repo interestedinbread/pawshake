@@ -52,6 +52,7 @@ export function SummaryPage() {
 
   const [summary, setSummary] = useState<PolicySummaryData | null>(null);
   const [metadata, setMetadata] = useState<PolicySummaryMetadata | null>(null);
+  const [policyName, setPolicyName] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,6 +75,7 @@ export function SummaryPage() {
         if (!isMounted) return;
         setSummary(response.summary as PolicySummaryData);
         setMetadata(response.metadata);
+        setPolicyName(response.policy?.name ?? null);
       } catch (err) {
         if (!isMounted) return;
         const statusCode = err instanceof ApiError ? err.statusCode : undefined;
@@ -112,6 +114,7 @@ export function SummaryPage() {
       const response = await documentApi.getPolicySummary(policyId);
       setSummary(response.summary as PolicySummaryData);
       setMetadata(response.metadata);
+      setPolicyName(response.policy?.name ?? null);
     } catch (err) {
       const statusCode = err instanceof ApiError ? err.statusCode : undefined;
       const message = getUserFriendlyErrorMessage(
@@ -169,7 +172,7 @@ export function SummaryPage() {
   return (
     <div className="space-y-6">
       <SummaryHeader
-        planName={summary.planName ?? undefined}
+        planName={policyName ?? undefined}
         insurer={summary.insurer ?? undefined}
         policyNumber={summary.policyNumber ?? undefined}
         lastUpdated={metadata?.updatedAt ?? metadata?.createdAt ?? undefined}

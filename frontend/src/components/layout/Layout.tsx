@@ -90,7 +90,7 @@ export function Layout({ children }: LayoutProps) {
 
       <footer className="border-t bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-4 text-sm md:flex-row text-[var(--color-dark-text-muted)]">
-          <span>© {new Date().getFullYear()} Pet Insurance Assistant.</span>
+          <span>© {new Date().getFullYear()} Policy Boi</span>
           <span>Build smarter claim experiences for pet owners.</span>
         </div>
       </footer>
