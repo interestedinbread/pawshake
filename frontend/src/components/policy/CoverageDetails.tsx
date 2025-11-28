@@ -22,11 +22,11 @@ interface CoverageDetailsProps {
 
 function renderList(items?: string[] | null): ReactNode {
   if (!items || items.length === 0) {
-    return <p className="text-sm text-slate-500">No items noted.</p>;
+    return <p className="text-sm text-[var(--color-dark-text-muted)]">No items noted.</p>;
   }
 
   return (
-    <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+    <ul className="list-disc space-y-1 pl-5 text-sm text-[var(--color-dark-text-secondary)]">
       {items.map((item, index) => (
         <li key={index}>{item}</li>
       ))}
@@ -43,16 +43,16 @@ export function CoverageDetails({
   onEdit,
 }: CoverageDetailsProps) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <header className="mb-4">
-        <h2 className="text-xl font-semibold text-slate-900">Coverage overview</h2>
-        <p className="text-sm text-slate-600">What the policy explicitly covers and excludes.</p>
+        <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Coverage overview</h2>
+        <p className="text-sm text-[var(--color-dark-text-secondary)]">What the policy explicitly covers and excludes.</p>
       </header>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-3 rounded-xl border border-slate-200 p-4">
+        <div className="space-y-3 rounded-xl border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold text-slate-900">Coverage types</h3>
+            <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">Coverage types</h3>
             {confidence?.coverageTypes && <ConfidenceBadge level={confidence.coverageTypes} />}
           </div>
           {renderList(coverageTypes)}
@@ -61,9 +61,9 @@ export function CoverageDetails({
           )}
         </div>
 
-        <div className="space-y-3 rounded-xl border border-slate-200 p-4">
+        <div className="space-y-3 rounded-xl border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold text-slate-900">Exclusions</h3>
+            <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">Exclusions</h3>
             {confidence?.exclusions && <ConfidenceBadge level={confidence.exclusions} />}
           </div>
           {renderList(exclusions)}
@@ -73,9 +73,9 @@ export function CoverageDetails({
         </div>
       </div>
 
-      <div className="mt-6 space-y-3 rounded-xl border border-slate-200 p-4">
+      <div className="mt-6 space-y-3 rounded-xl border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-slate-900">Additional notes</h3>
+          <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">Additional notes</h3>
           {confidence?.notes && <ConfidenceBadge level={confidence.notes} />}
         </div>
         <EditableField

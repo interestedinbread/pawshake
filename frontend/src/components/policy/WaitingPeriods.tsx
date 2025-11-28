@@ -54,11 +54,11 @@ export function WaitingPeriods({ waitingPeriod, confidence, sources, onEdit }: W
   ];
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <header className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">Waiting periods</h2>
-          <p className="text-sm text-slate-600">
+          <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Waiting periods</h2>
+          <p className="text-sm text-[var(--color-dark-text-secondary)]">
             Time before coverage begins for different conditions.
           </p>
         </div>
@@ -72,9 +72,9 @@ export function WaitingPeriods({ waitingPeriod, confidence, sources, onEdit }: W
           const fieldSources = sources?.[key];
 
           return (
-            <div key={key} className="space-y-3 rounded-xl border border-slate-200 p-4">
+            <div key={key} className="space-y-3 rounded-xl border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold text-slate-900">{label}</h3>
+                <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">{label}</h3>
                 {fieldConfidence && <ConfidenceBadge level={fieldConfidence} />}
               </div>
               <EditableField

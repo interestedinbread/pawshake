@@ -57,19 +57,19 @@ export function FinancialDetails({
   onEdit,
 }: FinancialDetailsProps) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <header className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">Financial coverage</h2>
-          <p className="text-sm text-slate-600">Key policy limits and reimbursement information.</p>
+          <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Financial coverage</h2>
+          <p className="text-sm text-[var(--color-dark-text-secondary)]">Key policy limits and reimbursement information.</p>
         </div>
         {confidence?.annualMaximum && <ConfidenceBadge level={confidence.annualMaximum} />}
       </header>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-3 rounded-xl border border-slate-200 p-4">
+        <div className="space-y-3 rounded-xl border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold text-slate-900">Deductible</h3>
+            <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">Deductible</h3>
             {deductible?.confidence && <ConfidenceBadge level={deductible.confidence} />}
           </div>
           <EditableField
@@ -92,10 +92,10 @@ export function FinancialDetails({
           )}
         </div>
 
-        <div className="space-y-4 rounded-xl border border-slate-200 p-4">
+        <div className="space-y-4 rounded-xl border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">Reimbursement rate</h3>
+              <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">Reimbursement rate</h3>
               {confidence?.reimbursementRate && <ConfidenceBadge level={confidence.reimbursementRate} />}
             </div>
             <EditableField
@@ -113,7 +113,7 @@ export function FinancialDetails({
 
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">Annual maximum</h3>
+              <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">Annual maximum</h3>
               {confidence?.annualMaximum && <ConfidenceBadge level={confidence.annualMaximum} />}
             </div>
             <EditableField
@@ -127,7 +127,7 @@ export function FinancialDetails({
 
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900">Per incident maximum</h3>
+              <h3 className="text-base font-semibold text-[var(--color-dark-text-primary)]">Per incident maximum</h3>
               {confidence?.perIncidentMaximum && <ConfidenceBadge level={confidence.perIncidentMaximum} />}
             </div>
             <EditableField

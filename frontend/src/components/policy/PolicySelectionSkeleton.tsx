@@ -6,7 +6,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
  */
 function PolicyItemSkeleton() {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+    <div className="flex items-center justify-between rounded-lg border px-4 py-3 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
       <div className="flex-1 space-y-1">
         <Skeleton width={200} height={16} />
         <Skeleton width={150} height={12} />
@@ -21,8 +21,8 @@ function PolicyItemSkeleton() {
  */
 export function SelectPolicySkeleton() {
   return (
-    <SkeletonTheme baseColor="#f1f5f9" highlightColor="#e2e8f0">
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+    <SkeletonTheme baseColor="#334155" highlightColor="#475569">
+      <section className="rounded-2xl border p-6 shadow-sm space-y-4 bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <header className="space-y-1">
           <Skeleton width={150} height={24} />
           <Skeleton width={300} height={16} />
@@ -43,8 +43,8 @@ export function SelectPolicySkeleton() {
  */
 export function SelectTwoPoliciesSkeleton() {
   return (
-    <SkeletonTheme baseColor="#f1f5f9" highlightColor="#e2e8f0">
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+    <SkeletonTheme baseColor="#334155" highlightColor="#475569">
+      <section className="rounded-2xl border p-6 shadow-sm space-y-4 bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <header className="space-y-1">
           <Skeleton width={250} height={24} />
           <Skeleton width={400} height={16} />

@@ -6,7 +6,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
  */
 export function SummaryHeaderSkeleton() {
   return (
-    <header className="rounded-2xl border border-slate-200 bg-gradient-to-r from-blue-50 via-white to-blue-50 p-6 shadow-sm">
+    <header className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex-1">
           <Skeleton width={120} height={16} className="mb-2" />
@@ -35,8 +35,8 @@ export function SummaryHeaderSkeleton() {
  */
 export function FinancialDetailsSkeleton() {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-xl font-semibold text-slate-900">Financial Details</h2>
+    <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
+      <h2 className="mb-4 text-xl font-semibold text-[var(--color-dark-text-primary)]">Financial Details</h2>
       <div className="space-y-4">
         {/* Deductible */}
         <div>
@@ -87,9 +87,9 @@ export function FinancialDetailsSkeleton() {
  */
 export function WaitingPeriodsSkeleton() {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-slate-900">Waiting Periods</h2>
+        <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Waiting Periods</h2>
         <Skeleton width={60} height={20} borderRadius={10} />
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -127,8 +127,8 @@ export function WaitingPeriodsSkeleton() {
  */
 export function CoverageDetailsSkeleton() {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-xl font-semibold text-slate-900">Coverage Details</h2>
+    <section className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
+      <h2 className="mb-4 text-xl font-semibold text-[var(--color-dark-text-primary)]">Coverage Details</h2>
       
       {/* Coverage Types */}
       <div className="mb-6">
@@ -176,7 +176,7 @@ export function CoverageDetailsSkeleton() {
  */
 export function SummaryPageSkeleton() {
   return (
-    <SkeletonTheme baseColor="#f1f5f9" highlightColor="#e2e8f0">
+    <SkeletonTheme baseColor="#334155" highlightColor="#475569">
       <div className="space-y-6">
         <SummaryHeaderSkeleton />
 

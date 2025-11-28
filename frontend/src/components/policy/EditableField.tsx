@@ -29,21 +29,21 @@ export function EditableField({
 
   return (
     <div className="space-y-1">
-      {label && <p className="text-sm font-medium text-slate-500">{label}</p>}
+      {label && <p className="text-sm font-medium text-[var(--color-dark-text-muted)]">{label}</p>}
       <div className="flex items-center gap-2">
         {isEditing ? (
           <input
-            className="w-full rounded border border-slate-300 px-3 py-1 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-full rounded border px-3 py-1 text-sm bg-[var(--color-dark-card)] border-[var(--color-dark-border)] text-[var(--color-dark-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             value={draftValue}
             onChange={(event) => setDraftValue(event.target.value)}
           />
         ) : (
-          <p className="text-base text-slate-900">{value ?? 'Unknown'}</p>
+          <p className="text-base text-[var(--color-dark-text-primary)]">{value ?? 'Unknown'}</p>
         )}
         {canEdit && (
           <button
             type="button"
-            className="text-xs font-medium text-blue-600 hover:text-blue-700"
+            className="text-xs font-medium text-[var(--color-primary)] hover:opacity-80"
             onClick={() => {
               if (isEditing) {
                 handleSave();
@@ -57,7 +57,7 @@ export function EditableField({
           </button>
         )}
       </div>
-      {helperText && <p className="text-xs text-slate-400">{helperText}</p>}
+      {helperText && <p className="text-xs text-[var(--color-dark-text-muted)]">{helperText}</p>}
     </div>
   );
 }

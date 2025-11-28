@@ -150,7 +150,7 @@ export function SummaryPage() {
 
   if (error && !summary) {
     return (
-      <div className="space-y-4 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+      <div className="space-y-4 rounded-2xl border p-6 border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
         <p className="font-semibold">Unable to load policy summary.</p>
         <p className="text-sm">{error}</p>
         <Button variant="outline" size="sm" onClick={handleRefresh}>
@@ -180,7 +180,7 @@ export function SummaryPage() {
       />
 
       {error && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
+        <div className="rounded-lg border p-3 text-sm border-[rgba(245,158,11,0.5)] bg-[rgba(245,158,11,0.1)] text-[#fbbf24]">
           {error}
         </div>
       )}
