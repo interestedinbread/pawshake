@@ -114,7 +114,7 @@ export function ComparePoliciesPage() {
       </div>
 
       {/* Chat input */}
-      <div className="border-t border-slate-200 rounded-b-2xl bg-white p-4">
+      <div className="border-t rounded-b-2xl p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
         <ChatInput
           onSubmit={handleAskQuestion}
           isLoading={isLoading}

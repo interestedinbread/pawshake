@@ -26,7 +26,7 @@ export function Button({
   const variants = {
     primary: 'text-white hover:opacity-90 focus:ring-2 focus:ring-[var(--color-primary)]',
     secondary: 'bg-gray-600 text-white hover:bg-gray-700',
-    danger: 'bg-red-600 text-white hover:bg-red-700',
+    danger: 'bg-red-500 text-white hover:bg-red-700',
     outline: 'border-2 hover:bg-[var(--color-primary)]/10 focus:ring-2 focus:ring-[var(--color-primary)]',
   };
   

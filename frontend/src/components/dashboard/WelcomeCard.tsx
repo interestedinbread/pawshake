@@ -21,7 +21,7 @@ export function WelcomeCard() {
             Welcome back
           </p>
           <h2 className="text-3xl font-semibold text-[var(--color-dark-text-primary)]">
-            Hi {userName}! 👋
+            Hi {userName}! 
           </h2>
           <p className="max-w-xl text-base text-[var(--color-dark-text-secondary)]">
             Upload a new policy, review your extracted summaries, or ask a coverage question.

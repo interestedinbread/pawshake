@@ -30,8 +30,8 @@ export function Layout({ children }: LayoutProps) {
                 className='h-auto w-auto'/>
             </div>
             <div>
-              <p className="text-lg font-semibold text-[var(--color-dark-text-primary)]">Pet Insurance Assistant</p>
-              <p className="text-sm text-[var(--color-dark-text-secondary)]">Understand policies • File claims faster</p>
+              <p className="text-4xl font-semibold text-[var(--color-dark-text-primary)] font-['Nunito']">Policy Boi</p>
+              <p className="text-sm italic text-[var(--color-dark-text-secondary)] font-['Inter']">Understand policies • File claims faster</p>
             </div>
           </div>
 

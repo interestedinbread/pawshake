@@ -216,7 +216,7 @@ export function PoliciesCard() {
           isOpen={deleteDialogOpen}
           title="Delete Policy"
           message={`Are you sure you want to delete "${policyToDelete.name}"?`}
-          details={`This will permanently delete the policy bundle, all ${policyToDelete.documentCount} associated document${policyToDelete.documentCount === 1 ? '' : 's'}, summaries, and embeddings. This action cannot be undone.`}
+          details={`This will permanently delete the policy bundle and all associated documents and summaries. This action cannot be undone.`}
           variant="danger"
           confirmText="Delete Policy"
           isConfirming={isDeleting}

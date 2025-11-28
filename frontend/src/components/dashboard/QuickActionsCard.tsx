@@ -12,14 +12,14 @@ interface ActionItem {
 const actions: ActionItem[] = [
   {
     title: 'Upload new policy',
-    description: 'Import a PDF to extract summaries, citations, and confidence scores.',
+    description: 'Import a PDF to extract a summary, answer questions, and prepare a claim',
     icon: '📤',
     route: '/upload',
     variant: 'primary',
   },
   {
-    title: 'Review latest summary',
-    description: 'See the most recent policy extraction and validate any low confidence fields.',
+    title: 'Review summaries',
+    description: 'See your policy extractions and validate any low confidence fields.',
     icon: '📝',
     route: '/summary',
     variant: 'outline',
