@@ -84,20 +84,20 @@ export function ClaimChecklistPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-900">Claim Checklist</h1>
-        <p className="mt-1 text-sm text-slate-600">
+      <div className="rounded-2xl border px-6 py-4 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
+        <h1 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Claim Checklist</h1>
+        <p className="mt-1 text-sm text-[var(--color-dark-text-secondary)]">
           Describe an incident to get a detailed checklist with required documents and action steps.
         </p>
       </div>
 
       {/* Incident Description Form */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
               htmlFor="incident-description"
-              className="block text-sm font-medium text-slate-700 mb-2"
+              className="block text-sm font-medium mb-2 text-[var(--color-dark-text-primary)]"
             >
               Describe the incident or your pet's condition
             </label>
@@ -107,17 +107,17 @@ export function ClaimChecklistPage() {
               onChange={(e) => setIncidentDescription(e.target.value)}
               placeholder="e.g., My dog broke his leg playing fetch in the park yesterday afternoon..."
               rows={6}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-lg border px-4 py-3 text-sm bg-[var(--color-dark-card)] border-[var(--color-dark-border)] text-[var(--color-dark-text-primary)] placeholder:text-[var(--color-dark-text-muted)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               disabled={isLoading}
             />
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-[var(--color-dark-text-muted)]">
               Be as specific as possible about what happened, when it occurred, and your pet's
               current condition.
             </p>
           </div>
 
           {error && (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+            <div className="rounded-lg border p-3 text-sm border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
               {error}
             </div>
           )}
@@ -132,9 +132,9 @@ export function ClaimChecklistPage() {
 
       {/* Checklist Result */}
       {checklist && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Your Claim Checklist</h2>
+            <h2 className="text-lg font-semibold text-[var(--color-dark-text-primary)]">Your Claim Checklist</h2>
             <Button
               variant="outline"
               size="sm"

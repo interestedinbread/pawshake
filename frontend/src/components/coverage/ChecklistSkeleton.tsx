@@ -6,8 +6,8 @@ import 'react-loading-skeleton/dist/skeleton.css';
  */
 export function ChecklistSkeleton() {
   return (
-    <SkeletonTheme baseColor="#f1f5f9" highlightColor="#e2e8f0">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <SkeletonTheme baseColor="#334155" highlightColor="#475569">
+      <div className="rounded-2xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <div className="mb-4 flex items-center justify-between">
           <Skeleton width={180} height={24} />
           <Skeleton width={120} height={36} borderRadius={6} />
@@ -15,12 +15,12 @@ export function ChecklistSkeleton() {
 
         <div className="space-y-6">
           {/* Summary section skeleton */}
-          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <div className="rounded-xl border p-4 border-[rgba(59,130,246,0.5)] bg-[rgba(59,130,246,0.15)]">
             <Skeleton width="100%" height={60} />
           </div>
 
           {/* Coverage Status Card skeleton */}
-          <div className="rounded-xl border-2 border-slate-200 bg-slate-50 p-6">
+          <div className="rounded-xl border-2 p-6 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
             <div className="mb-4 flex items-center gap-3">
               <Skeleton width={40} height={40} borderRadius={20} />
               <div className="flex-1">
@@ -47,14 +47,14 @@ export function ChecklistSkeleton() {
             </div>
 
             {/* Estimated coverage */}
-            <div className="rounded-lg bg-slate-100 p-4">
+            <div className="rounded-lg p-4 bg-[var(--color-dark-card)]">
               <Skeleton width={180} height={14} className="mb-2" />
               <Skeleton width={80} height={24} />
             </div>
           </div>
 
           {/* Required Documents skeleton */}
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
             <header className="mb-4">
               <Skeleton width={180} height={24} />
               <Skeleton width={250} height={16} className="mt-1" />
@@ -62,7 +62,7 @@ export function ChecklistSkeleton() {
 
             <div className="space-y-3">
               {/* Document card 1 */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-lg border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <Skeleton width={200} height={18} className="mb-2" />
@@ -73,7 +73,7 @@ export function ChecklistSkeleton() {
               </div>
 
               {/* Document card 2 */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-lg border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <Skeleton width={180} height={18} className="mb-2" />
@@ -84,7 +84,7 @@ export function ChecklistSkeleton() {
               </div>
 
               {/* Document card 3 */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-lg border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <Skeleton width={220} height={18} className="mb-2" />
@@ -97,7 +97,7 @@ export function ChecklistSkeleton() {
           </div>
 
           {/* Action Steps skeleton */}
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
             <header className="mb-4">
               <Skeleton width={140} height={24} />
               <Skeleton width={200} height={16} className="mt-1" />

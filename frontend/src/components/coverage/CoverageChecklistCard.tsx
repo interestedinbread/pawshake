@@ -12,8 +12,8 @@ export function CoverageChecklistCard({ checklist }: CoverageChecklistCardProps)
     <div className="space-y-6">
       {/* Summary section */}
       {checklist.summary && (
-        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-          <p className="text-sm text-slate-700">{checklist.summary}</p>
+        <div className="rounded-xl border p-4 border-[rgba(59,130,246,0.5)] bg-[rgba(59,130,246,0.15)]">
+          <p className="text-sm text-[var(--color-dark-text-secondary)]">{checklist.summary}</p>
         </div>
       )}
 

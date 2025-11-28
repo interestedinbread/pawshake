@@ -94,7 +94,7 @@ export function ComparePoliciesPage() {
   return (
     <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       {/* Header */}
-      <div className="border-b px-6 py-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
+      <div className="border-b px-6 py-4 rounded-t-2xl bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
         <h1 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Compare policies</h1>
         <p className="mt-1 text-sm text-[var(--color-dark-text-secondary)]">
           Ask questions to compare your two selected policies side by side.
@@ -114,7 +114,7 @@ export function ComparePoliciesPage() {
       </div>
 
       {/* Chat input */}
-      <div className="border-t border-slate-200 bg-white p-4">
+      <div className="border-t border-slate-200 rounded-b-2xl bg-white p-4">
         <ChatInput
           onSubmit={handleAskQuestion}
           isLoading={isLoading}

@@ -14,23 +14,23 @@ const getPriorityConfig = (priority: 'high' | 'medium' | 'low'): {
     case 'high':
       return {
         label: 'High priority',
-        color: 'text-rose-700',
-        bgColor: 'bg-rose-50',
-        borderColor: 'border-rose-200',
+        color: '#fca5a5',
+        bgColor: 'rgba(239, 68, 68, 0.2)',
+        borderColor: 'rgba(239, 68, 68, 0.5)',
       };
     case 'medium':
       return {
         label: 'Medium priority',
-        color: 'text-amber-700',
-        bgColor: 'bg-amber-50',
-        borderColor: 'border-amber-200',
+        color: '#fbbf24',
+        bgColor: 'rgba(245, 158, 11, 0.2)',
+        borderColor: 'rgba(245, 158, 11, 0.5)',
       };
     case 'low':
       return {
         label: 'Low priority',
-        color: 'text-blue-700',
-        bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200',
+        color: '#93c5fd',
+        bgColor: 'rgba(59, 130, 246, 0.2)',
+        borderColor: 'rgba(59, 130, 246, 0.5)',
       };
   }
 };
@@ -38,12 +38,12 @@ const getPriorityConfig = (priority: 'high' | 'medium' | 'low'): {
 export function ActionStepsList({ steps }: ActionStepsListProps) {
   if (steps.length === 0) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
         <header className="mb-4">
-          <h2 className="text-xl font-semibold text-slate-900">Action steps</h2>
-          <p className="text-sm text-slate-600">Steps to take for your claim.</p>
+          <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Action steps</h2>
+          <p className="text-sm text-[var(--color-dark-text-secondary)]">Steps to take for your claim.</p>
         </header>
-        <p className="text-sm text-slate-500">No action steps required at this time.</p>
+        <p className="text-sm text-[var(--color-dark-text-muted)]">No action steps required at this time.</p>
       </div>
     );
   }
@@ -52,10 +52,10 @@ export function ActionStepsList({ steps }: ActionStepsListProps) {
   const sortedSteps = [...steps].sort((a, b) => a.step - b.step);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border p-6 shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <header className="mb-4">
-        <h2 className="text-xl font-semibold text-slate-900">Action steps</h2>
-        <p className="text-sm text-slate-600">
+        <h2 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Action steps</h2>
+        <p className="text-sm text-[var(--color-dark-text-secondary)]">
           {steps.length} step{steps.length === 1 ? '' : 's'} to complete for your claim.
         </p>
       </header>
@@ -69,21 +69,26 @@ export function ActionStepsList({ steps }: ActionStepsListProps) {
             <div key={index} className="relative">
               {/* Step connector line (not shown for last step) */}
               {!isLastStep && (
-                <div className="absolute left-4 top-12 h-full w-0.5 bg-slate-200" />
+                <div className="absolute left-4 top-12 h-full w-0.5 bg-[var(--color-dark-border)]" />
               )}
 
               <div className="relative flex gap-4">
                 {/* Step number circle */}
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-blue-600 bg-blue-600 text-sm font-semibold text-white">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 bg-[var(--color-primary)] border-[var(--color-primary)] text-sm font-semibold text-[var(--color-dark-bg)]">
                   {step.step}
                 </div>
 
                 {/* Step content */}
-                <div className="flex-1 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="flex-1 rounded-lg border p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
                   <div className="mb-2 flex items-start justify-between gap-3">
-                    <p className="flex-1 text-base font-medium text-slate-900">{step.action}</p>
+                    <p className="flex-1 text-base font-medium text-[var(--color-dark-text-primary)]">{step.action}</p>
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-full border ${priorityConfig.borderColor} ${priorityConfig.bgColor} px-2.5 py-1 text-xs font-medium ${priorityConfig.color}`}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium`}
+                      style={{
+                        backgroundColor: priorityConfig.bgColor,
+                        borderColor: priorityConfig.borderColor,
+                        color: priorityConfig.color,
+                      }}
                     >
                       {step.priority === 'high' && '🔴'}
                       {step.priority === 'medium' && '🟡'}
@@ -95,13 +100,13 @@ export function ActionStepsList({ steps }: ActionStepsListProps) {
                   {/* Additional information */}
                   <div className="mt-3 flex flex-wrap gap-2">
                     {step.deadline && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800">
+                      <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-[rgba(245,158,11,0.2)] text-[#fbbf24]">
                         <span>⏱</span>
                         Deadline: {step.deadline}
                       </span>
                     )}
                     {step.policyReference && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800">
+                      <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-[rgba(59,130,246,0.2)] text-[#93c5fd]">
                         <span>📄</span>
                         {step.policyReference.pageNumber
                           ? `Page ${step.policyReference.pageNumber}`

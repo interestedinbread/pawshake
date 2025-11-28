@@ -92,7 +92,7 @@ export function QAPage() {
   return (
     <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       {/* Header */}
-      <div className="border-b px-6 py-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
+      <div className="border-b px-6 py-4 rounded-t-2xl bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Ask about your policy</h1>
@@ -124,7 +124,7 @@ export function QAPage() {
       </div>
 
       {/* Chat input */}
-      <div className="border-t p-4 bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
+      <div className="border-t p-4 rounded-b-2xl bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
         <ChatInput onSubmit={handleAskQuestion} isLoading={isLoading} disabled={!policyId} />
       </div>
     </div>
