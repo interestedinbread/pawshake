@@ -1,12 +1,13 @@
 import { ChromaClient } from 'chromadb';
+import { env } from '../config/env';
 
 // Create Chroma client
 // For ChromaDB v3+, you need a running Chroma server
 // Option 1: Run Docker: docker run -d -p 8000:8000 --name chroma chromadb/chroma
 // Option 2: Run Chroma server locally via Python
-// For now, we'll try to connect to localhost:8000 (default)
+// The Chroma URL is configured via CHROMA_URL environment variable (defaults to http://localhost:8000)
 const client = new ChromaClient({
-  path: 'http://localhost:8000'
+  path: env.chromaUrl
 });
 
 // Collection name for document embeddings

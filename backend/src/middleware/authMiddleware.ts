@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { env } from '../config/env';
 
 
 export const authenticateToken = (
@@ -15,14 +16,8 @@ export const authenticateToken = (
     return;
   }
 
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) {
-    res.status(500).json({ error: 'Server configuration error' });
-    return;
-  }
-
   try {
-    const decoded = jwt.verify(token, jwtSecret) as { id: string; email: string };
+    const decoded = jwt.verify(token, env.jwtSecret) as { id: string; email: string };
     req.userId = decoded.id;
     next();
   } catch (error) {
