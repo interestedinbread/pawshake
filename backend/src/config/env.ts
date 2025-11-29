@@ -65,6 +65,16 @@ function validateEnv(): EnvConfig {
     );
   }
 
+  // Security: Prevent wildcard CORS in production
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  if (nodeEnv === 'production' && corsOrigin === '*') {
+    throw new Error(
+      'Security error: CORS_ORIGIN cannot be "*" in production environment.\n' +
+      'Please set CORS_ORIGIN to your frontend domain (e.g., https://yourdomain.com).\n' +
+      'This prevents unauthorized websites from accessing your API.'
+    );
+  }
+
   return {
     openAIApiKey,
     jwtSecret,
