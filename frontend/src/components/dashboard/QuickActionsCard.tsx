@@ -12,35 +12,35 @@ interface ActionItem {
 const actions: ActionItem[] = [
   {
     title: 'Upload new policy',
-    description: 'Import a PDF to extract a summary, answer questions, and prepare a claim',
+    description: 'Import a PDF to extract a summary, answer questions, and prepare a claim.',
     icon: '📤',
     route: '/upload',
     variant: 'primary',
   },
   {
     title: 'Review summaries',
-    description: 'See your policy extractions and validate any low confidence fields.',
+    description: 'See your policy extractions.',
     icon: '📝',
     route: '/summary',
     variant: 'outline',
   },
   {
     title: 'Ask a coverage question',
-    description: 'Use RAG to clarify what is covered before filing a claim.',
+    description: 'Use an agent to clarify what is covered before filing a claim.',
     icon: '💬',
     route: '/qa',
     variant: 'outline',
   },
   {
     title: 'Compare policies',
-    description: 'Ask questions to compare two policies side by side.',
+    description: 'Ask questions to compare the advantages and disadvantages of two policies.',
     icon: '⚖️',
     route: '/compare',
     variant: 'outline',
   },
   {
     title: 'Create claim checklist',
-    description: 'Describe an incident and generate a checklist with required documents and action steps',
+    description: 'Describe an incident and generate a checklist with required documents and action steps.',
     icon: "📋",
     route: '/claim-checklist',
     variant: 'outline'
