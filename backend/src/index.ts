@@ -6,6 +6,7 @@ import express from 'express'
 import helmet from 'helmet'
 import morgan from 'morgan'
 
+import { env } from './config/env'
 import { initializeSchema } from './db/schema'
 import authRoutes from './routes/authRoutes'
 import documentRoutes from './routes/documentRoutes'
@@ -13,7 +14,7 @@ import policyRoutes from './routes/policyRoutes'
 import qaRoutes from './routes/qaRoutes'
 
 const app = express()
-const ALLOWED_ORIGIN = process.env.CORS_ORIGIN || '*'
+const ALLOWED_ORIGIN = env.corsOrigin
 
 app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }))
 app.use(helmet())
@@ -39,13 +40,11 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
     res.status(500).json({ error: 'Internal server error' });
   });
 
-const PORT = process.env.PORT || 8080;
-
 // Initialize database schema before starting server
 (async () => {
   try {
     await initializeSchema();
-    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    app.listen(env.port, () => console.log(`Server is running on port ${env.port}`));
   } catch (error) {
     console.error('Failed to initialize database schema:', error);
     process.exit(1);

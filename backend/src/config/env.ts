@@ -1,0 +1,93 @@
+/**
+ * Centralized environment variable validation and configuration
+ * 
+ * This module validates all required environment variables on startup
+ * and exports a typed configuration object. If any required variable
+ * is missing, the application will fail to start with a clear error message.
+ */
+
+interface EnvConfig {
+  // Required variables
+  openAIApiKey: string;
+  jwtSecret: string;
+  databaseUrl: string;
+  
+  // Optional variables with defaults
+  corsOrigin: string;
+  port: number;
+  chromaUrl: string;
+  jwtExpiresIn: string;
+}
+
+/**
+ * Validates and returns environment configuration
+ * Throws an error if any required variable is missing
+ */
+function validateEnv(): EnvConfig {
+  // Required variables - fail fast if missing
+  const openAIApiKey = process.env.OPENAI_API_KEY;
+  if (!openAIApiKey) {
+    throw new Error(
+      'Missing required environment variable: OPENAI_API_KEY\n' +
+      'Please set OPENAI_API_KEY in your .env file or environment.'
+    );
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error(
+      'Missing required environment variable: JWT_SECRET\n' +
+      'Please set JWT_SECRET in your .env file or environment.\n' +
+      'Generate a secure random string (e.g., using: openssl rand -base64 32)'
+    );
+  }
+
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error(
+      'Missing required environment variable: DATABASE_URL\n' +
+      'Please set DATABASE_URL in your .env file or environment.\n' +
+      'Format: postgresql://user:password@host:port/database'
+    );
+  }
+
+  // Optional variables with defaults
+  const corsOrigin = process.env.CORS_ORIGIN || '*';
+  const port = parseInt(process.env.PORT || '8080', 10);
+  const chromaUrl = process.env.CHROMA_URL || 'http://localhost:8000';
+  const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '7d';
+
+  // Validate port is a valid number
+  if (isNaN(port) || port < 1 || port > 65535) {
+    throw new Error(
+      `Invalid PORT value: ${process.env.PORT}\n` +
+      'PORT must be a number between 1 and 65535.'
+    );
+  }
+
+  return {
+    openAIApiKey,
+    jwtSecret,
+    databaseUrl,
+    corsOrigin,
+    port,
+    chromaUrl,
+    jwtExpiresIn,
+  };
+}
+
+// Validate and export configuration
+// This will throw an error immediately if any required variable is missing
+export const env = validateEnv();
+
+// Export individual values for convenience
+export const {
+  openAIApiKey,
+  jwtSecret,
+  databaseUrl,
+  corsOrigin,
+  port,
+  chromaUrl,
+  jwtExpiresIn,
+} = env;
+
