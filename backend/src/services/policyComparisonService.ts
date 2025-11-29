@@ -1,15 +1,11 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { querySimilarChunks, SimilarChunk } from './vectorService';
 import { PolicySummary } from '../types/policySummary';
+import { env } from '../config/env';
 
 // Initialize OpenAI chat model (same as qaService)
-const openAIApiKey = process.env.OPENAI_API_KEY;
-if (!openAIApiKey) {
-  throw new Error('OPENAI_API_KEY is not defined in environment variables');
-}
-
 const chatModel = new ChatOpenAI({
-  openAIApiKey: openAIApiKey,
+  openAIApiKey: env.openAIApiKey,
   modelName: 'gpt-4o-mini',
   temperature: 0.3,
 });

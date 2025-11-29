@@ -1,15 +1,11 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { querySimilarChunks } from './vectorService';
 import { PolicySummary, DeductibleInfo, WaitingPeriodInfo } from '../types/policySummary';
+import { env } from '../config/env';
 
 // Initialize OpenAI chat model for extraction
-const openAIApiKey = process.env.OPENAI_API_KEY;
-if (!openAIApiKey) {
-  throw new Error('OPENAI_API_KEY is not defined in environment variables');
-}
-
 const extractionModel = new ChatOpenAI({
-  openAIApiKey: openAIApiKey,
+  openAIApiKey: env.openAIApiKey,
   modelName: 'gpt-4o-mini', // Can upgrade to gpt-4o for better extraction
   temperature: 0.1, // Very low temperature for consistent, factual extraction
 });

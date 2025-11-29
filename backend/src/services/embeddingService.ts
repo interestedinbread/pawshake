@@ -1,13 +1,9 @@
 import { OpenAIEmbeddings } from '@langchain/openai';
+import { env } from '../config/env';
 
 // Initialize OpenAI embeddings model
-const openAIApiKey = process.env.OPENAI_API_KEY;
-if (!openAIApiKey) {
-  throw new Error('OPENAI_API_KEY is not defined in environment variables');
-}
-
 const embeddings = new OpenAIEmbeddings({
-  openAIApiKey: openAIApiKey,
+  openAIApiKey: env.openAIApiKey,
   modelName: 'text-embedding-3-small', // or 'text-embedding-3-large' for better quality
 });
 
