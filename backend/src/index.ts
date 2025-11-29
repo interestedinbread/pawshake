@@ -7,6 +7,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 
 import { env } from './config/env'
+import { testDatabaseConnection } from './db/db'
 import { initializeSchema } from './db/schema'
 import authRoutes from './routes/authRoutes'
 import documentRoutes from './routes/documentRoutes'
@@ -40,13 +41,23 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
     res.status(500).json({ error: 'Internal server error' });
   });
 
-// Initialize database schema before starting server
+// Initialize database connection and schema before starting server
 (async () => {
   try {
+    // Test database connection first
+    console.log('Testing database connection...');
+    await testDatabaseConnection();
+    console.log('Database connection successful');
+
+    // Initialize database schema
+    console.log('Initializing database schema...');
     await initializeSchema();
+    console.log('Database schema initialized');
+
+    // Start the server
     app.listen(env.port, () => console.log(`Server is running on port ${env.port}`));
   } catch (error) {
-    console.error('Failed to initialize database schema:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 })();
