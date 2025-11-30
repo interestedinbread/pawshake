@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { uploadDocument, getPolicySummary, deleteDocument } from "../controllers/documentController";
+import { uploadDocument, deleteDocument } from "../controllers/documentController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = Router();
@@ -9,7 +9,7 @@ const router = Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 15 * 1024 * 1024, // 15MB limit
   },
 });
 

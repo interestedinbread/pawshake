@@ -20,8 +20,8 @@ const ALLOWED_ORIGIN = env.corsOrigin
 app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }))
 app.use(helmet())
 app.use(morgan('dev'))
-app.use(express.json({ limit: '5mb' }))
-app.use(express.urlencoded({ extended: true, limit: '5mb' }))
+app.use(express.json({ limit: '15mb' }))
+app.use(express.urlencoded({ extended: true, limit: '15mb' }))
 
 app.get('/health', (_, res) => {
     res.json({
