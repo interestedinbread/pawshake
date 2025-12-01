@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../db/db';
 import { analyzeIncidentCoverage } from '../services/coverageChecklistService';
+import logger from '../utils/logger';
 
 /**
  * Handle coverage analysis for an incident.
@@ -74,7 +75,13 @@ export const checkCoverage = async (req: Request, res: Response): Promise<void> 
 
     res.status(200).json(checklist);
   } catch (err) {
-    console.error('Error checking coverage:', err);
+    logger.error('Error checking coverage', {
+      policyId: req.params.policyId || 'unknown',
+      userId: req.userId || 'unknown',
+      incidentDescription: req.body?.incidentDescription?.substring(0, 100) || 'unknown', // Log first 100 chars
+      error: err instanceof Error ? err.message : 'Unknown error',
+      stack: err instanceof Error ? err.stack : undefined,
+    });
     res.status(500).json({
       error: 'Failed to analyze coverage',
       message: err instanceof Error ? err.message : 'Unknown error',

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../db/db';
 import { comparePoliciesForQuestion } from '../services/policyComparisonService';
+import logger from '../utils/logger';
 
 /**
  * Handle comparison questions between two policies.
@@ -104,7 +105,14 @@ export const askComparisonQuestion = async (
 
     res.status(200).json(comparisonAnswer);
   } catch (err) {
-    console.error('Error handling comparison question:', err);
+    logger.error('Error handling comparison question', {
+      userId: req.userId || 'unknown',
+      policyId1: req.body?.policyId1 || 'unknown',
+      policyId2: req.body?.policyId2 || 'unknown',
+      question: req.body?.question?.substring(0, 100) || 'unknown', // Log first 100 chars
+      error: err instanceof Error ? err.message : 'Unknown error',
+      stack: err instanceof Error ? err.stack : undefined,
+    });
     res.status(500).json({
       error: 'Failed to answer comparison question',
       message: err instanceof Error ? err.message : 'Unknown error',
