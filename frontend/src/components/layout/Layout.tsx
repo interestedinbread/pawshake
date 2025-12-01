@@ -31,7 +31,7 @@ export function Layout({ children }: LayoutProps) {
             </div>
             <div>
               <p className="text-4xl font-semibold text-[var(--color-dark-text-primary)] font-['Nunito']">Policy Boi</p>
-              <p className="text-sm italic text-[var(--color-dark-text-secondary)] font-['Inter']">Understand policies • File claims faster</p>
+              <p className="text-sm italic text-[var(--color-dark-text-secondary)] font-['Inter']">Understand policies • File claims confidently</p>
             </div>
           </div>
 

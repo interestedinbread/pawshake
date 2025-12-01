@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkCoverage = void 0;
 const db_1 = require("../db/db");
 const coverageChecklistService_1 = require("../services/coverageChecklistService");
+const logger_1 = __importDefault(require("../utils/logger"));
 /**
  * Handle coverage analysis for an incident.
  *
@@ -64,7 +68,13 @@ const checkCoverage = async (req, res) => {
         res.status(200).json(checklist);
     }
     catch (err) {
-        console.error('Error checking coverage:', err);
+        logger_1.default.error('Error checking coverage', {
+            policyId: req.params.policyId || 'unknown',
+            userId: req.userId || 'unknown',
+            incidentDescription: req.body?.incidentDescription?.substring(0, 100) || 'unknown', // Log first 100 chars
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to analyze coverage',
             message: err instanceof Error ? err.message : 'Unknown error',

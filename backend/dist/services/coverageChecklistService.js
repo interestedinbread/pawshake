@@ -1,15 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.analyzeIncidentCoverage = analyzeIncidentCoverage;
 const openai_1 = require("@langchain/openai");
 const vectorService_1 = require("./vectorService");
+const env_1 = require("../config/env");
+const logger_1 = __importDefault(require("../utils/logger"));
 // Initialize OpenAI chat model
-const openAIApiKey = process.env.OPENAI_API_KEY;
-if (!openAIApiKey) {
-    throw new Error('OPENAI_API_KEY is not defined in environment variables');
-}
 const chatModel = new openai_1.ChatOpenAI({
-    openAIApiKey: openAIApiKey,
+    openAIApiKey: env_1.env.openAIApiKey,
     modelName: 'gpt-4o-mini',
     temperature: 0.3, // Lower temperature for more factual, consistent analysis
 });
@@ -172,7 +173,11 @@ Return ONLY the JSON object matching the structure specified above. Do not inclu
             checklistData = JSON.parse(jsonContent);
         }
         catch (parseError) {
-            console.error('Failed to parse LLM response as JSON:', parseError);
+            logger_1.default.warn('Failed to parse LLM response as JSON in coverage analysis', {
+                policyId,
+                incidentDescription: incidentDescription.substring(0, 100), // Log first 100 chars
+                error: parseError instanceof Error ? parseError.message : 'Unknown error',
+            });
             // Return fallback checklist
             return {
                 isCovered: 'unclear',
@@ -212,7 +217,12 @@ Return ONLY the JSON object matching the structure specified above. Do not inclu
         };
     }
     catch (error) {
-        console.error(`Error analyzing incident coverage:`, error);
+        logger_1.default.error('Error analyzing incident coverage', {
+            policyId,
+            incidentDescription: incidentDescription.substring(0, 100), // Log first 100 chars
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         throw new Error(`Failed to analyze coverage: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }

@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteDocument = exports.getPolicyDocuments = exports.getPolicySummary = exports.uploadDocument = void 0;
 const documentServices_1 = require("../services/documentServices");
@@ -6,6 +9,7 @@ const chunkingService_1 = require("../services/chunkingService");
 const vectorService_1 = require("../services/vectorService");
 const policiesController_1 = require("./policiesController");
 const db_1 = require("../db/db");
+const logger_1 = __importDefault(require("../utils/logger"));
 const uploadDocument = async (req, res) => {
     try {
         // Check if files were uploaded
@@ -90,7 +94,13 @@ const uploadDocument = async (req, res) => {
             }
             catch (err) {
                 // Handle individual file errors (continue processing other files)
-                console.error(`Error processing file ${file.originalname}:`, err);
+                logger_1.default.error('Error processing file during upload', {
+                    filename: file.originalname,
+                    userId,
+                    policyId,
+                    error: err instanceof Error ? err.message : 'Unknown error',
+                    stack: err instanceof Error ? err.stack : undefined,
+                });
                 uploadResults.push({
                     status: 'error',
                     filename: file.originalname,
@@ -142,7 +152,13 @@ const uploadDocument = async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error uploading document:', error);
+        logger_1.default.error('Error uploading document', {
+            userId: req.userId || 'unknown',
+            policyId: req.body?.policyId || 'unknown',
+            fileCount: Array.isArray(req.files) ? req.files.length : 0,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to process document',
             message: error instanceof Error ? error.message : 'Unknown error',
@@ -206,7 +222,12 @@ const getPolicySummary = async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error fetching policy summary:', error);
+        logger_1.default.error('Error fetching policy summary', {
+            policyId: req.params.policyId || 'unknown',
+            userId: req.userId || 'unknown',
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to fetch policy summary',
             message: error instanceof Error ? error.message : 'Unknown error',
@@ -247,7 +268,12 @@ const getPolicyDocuments = async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error fetching policy documents:', error);
+        logger_1.default.error('Error fetching policy documents', {
+            policyId: req.params.policyId || 'unknown',
+            userId: req.userId || 'unknown',
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to fetch policy documents',
             message: error instanceof Error ? error.message : 'Unknown error',
@@ -317,7 +343,12 @@ const deleteDocument = async (req, res) => {
         });
     }
     catch (err) {
-        console.error('Failed to delete document:', err);
+        logger_1.default.error('Failed to delete document', {
+            documentId: req.params.documentId || 'unknown',
+            userId: req.userId || 'unknown',
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to delete document',
             message: err instanceof Error ? err.message : 'Unknown error',

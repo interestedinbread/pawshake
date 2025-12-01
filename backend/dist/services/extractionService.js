@@ -3,13 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.extractPolicySummary = extractPolicySummary;
 const openai_1 = require("@langchain/openai");
 const vectorService_1 = require("./vectorService");
+const env_1 = require("../config/env");
 // Initialize OpenAI chat model for extraction
-const openAIApiKey = process.env.OPENAI_API_KEY;
-if (!openAIApiKey) {
-    throw new Error('OPENAI_API_KEY is not defined in environment variables');
-}
 const extractionModel = new openai_1.ChatOpenAI({
-    openAIApiKey: openAIApiKey,
+    openAIApiKey: env_1.env.openAIApiKey,
     modelName: 'gpt-4o-mini', // Can upgrade to gpt-4o for better extraction
     temperature: 0.1, // Very low temperature for consistent, factual extraction
 });

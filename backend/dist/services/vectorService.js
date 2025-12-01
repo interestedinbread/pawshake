@@ -54,7 +54,6 @@ async function storeChunks(chunks, documentId, policyId) {
             documents: chunkTexts,
             metadatas: metadatas,
         });
-        
     }
     catch (error) {
         throw new Error(`Failed to store chunks in vector database: ${error instanceof Error ? error.message : 'Unknown error'}`);

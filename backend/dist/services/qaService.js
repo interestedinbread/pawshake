@@ -3,92 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.answerQuestion = answerQuestion;
 const openai_1 = require("@langchain/openai");
 const vectorService_1 = require("./vectorService");
+const env_1 = require("../config/env");
 // Initialize OpenAI chat model
-const openAIApiKey = process.env.OPENAI_API_KEY;
-if (!openAIApiKey) {
-    throw new Error('OPENAI_API_KEY is not defined in environment variables');
-}
 const chatModel = new openai_1.ChatOpenAI({
-    openAIApiKey: openAIApiKey,
+    openAIApiKey: env_1.env.openAIApiKey,
     modelName: 'gpt-4o-mini', // Using gpt-4o-mini for cost efficiency, can upgrade to gpt-4o if needed
     temperature: 0.3, // Lower temperature for more factual, consistent answers
 });
-/**
- * Detect if a question is about coverage/incidents that would benefit from a coverage checklist
- * @param question - User's question
- * @returns True if the question seems coverage/incident-related
- */
-function detectCoverageQuestion(question) {
-    const normalizedQuestion = question.toLowerCase().trim();
-    // Keywords that suggest coverage/incident questions
-    const coverageKeywords = [
-        // Incident-related
-        'incident',
-        'accident',
-        'happened',
-        'occurred',
-        'broke',
-        'broken',
-        'injured',
-        'injury',
-        'hurt',
-        'sick',
-        'illness',
-        'surgery',
-        'operation',
-        'procedure',
-        'treatment',
-        'emergency',
-        'vet visit',
-        'veterinary',
-        'diagnosis',
-        'diagnosed',
-        // Coverage-related
-        'covered',
-        'coverage',
-        'cover',
-        'is covered',
-        'will cover',
-        'does it cover',
-        'covered by',
-        'claim',
-        'file a claim',
-        'submit claim',
-        'claimable',
-        // Specific conditions/treatments
-        'pre-existing',
-        'preexisting',
-        'waiting period',
-        'deductible',
-        'reimbursement',
-        'reimburse',
-        // Action-oriented
-        'what do i need',
-        'what documents',
-        'required documents',
-        'what steps',
-        'how to file',
-        'how do i',
-        'can i claim',
-        'eligible',
-        'qualify',
-    ];
-    // Check if question contains coverage-related keywords
-    const hasCoverageKeyword = coverageKeywords.some((keyword) => normalizedQuestion.includes(keyword));
-    // Also check for question patterns that suggest coverage inquiries
-    const coverageQuestionPatterns = [
-        /is.*covered/,
-        /will.*cover/,
-        /does.*cover/,
-        /can.*claim/,
-        /what.*need.*claim/,
-        /how.*file.*claim/,
-        /what.*documents.*need/,
-        /is.*eligible/,
-    ];
-    const matchesPattern = coverageQuestionPatterns.some((pattern) => pattern.test(normalizedQuestion));
-    return hasCoverageKeyword || matchesPattern;
-}
 /**
  * Generate an answer to a user's question using RAG (Retrieval-Augmented Generation)
  * @param question - User's question about their policy
@@ -141,13 +62,10 @@ ${context}`;
             { role: 'user', content: question },
         ]);
         const answer = response.content;
-        // Step 5: Detect if this question would benefit from a coverage checklist
-        const suggestCoverageCheck = detectCoverageQuestion(question);
-        // Step 6: Return answer without text citations (LLM includes page references in answer)
+        // Step 5: Return answer without text citations (LLM includes page references in answer)
         return {
             answer,
             sources: [], // No longer returning text citations
-            suggestCoverageCheck,
         };
     }
     catch (error) {

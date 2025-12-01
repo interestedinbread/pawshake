@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.askComparisonQuestion = void 0;
 const db_1 = require("../db/db");
 const policyComparisonService_1 = require("../services/policyComparisonService");
+const logger_1 = __importDefault(require("../utils/logger"));
 /**
  * Handle comparison questions between two policies.
  *
@@ -78,7 +82,14 @@ const askComparisonQuestion = async (req, res) => {
         res.status(200).json(comparisonAnswer);
     }
     catch (err) {
-        console.error('Error handling comparison question:', err);
+        logger_1.default.error('Error handling comparison question', {
+            userId: req.userId || 'unknown',
+            policyId1: req.body?.policyId1 || 'unknown',
+            policyId2: req.body?.policyId2 || 'unknown',
+            question: req.body?.question?.substring(0, 100) || 'unknown', // Log first 100 chars
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to answer comparison question',
             message: err instanceof Error ? err.message : 'Unknown error',

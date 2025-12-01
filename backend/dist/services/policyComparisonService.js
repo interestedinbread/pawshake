@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPolicyContextForTopic = getPolicyContextForTopic;
 exports.getComparisonContext = getComparisonContext;
@@ -10,13 +13,11 @@ exports.formatComparisonText = formatComparisonText;
 exports.generateFullComparison = generateFullComparison;
 const openai_1 = require("@langchain/openai");
 const vectorService_1 = require("./vectorService");
+const env_1 = require("../config/env");
+const logger_1 = __importDefault(require("../utils/logger"));
 // Initialize OpenAI chat model (same as qaService)
-const openAIApiKey = process.env.OPENAI_API_KEY;
-if (!openAIApiKey) {
-    throw new Error('OPENAI_API_KEY is not defined in environment variables');
-}
 const chatModel = new openai_1.ChatOpenAI({
-    openAIApiKey: openAIApiKey,
+    openAIApiKey: env_1.env.openAIApiKey,
     modelName: 'gpt-4o-mini',
     temperature: 0.3,
 });
@@ -48,7 +49,12 @@ async function getPolicyContextForTopic(policyId, topic, nChunks = 7) {
         return chunks;
     }
     catch (error) {
-        console.error(`Error retrieving context for topic "${topic}" in policy ${policyId}:`, error);
+        logger_1.default.warn('Error retrieving context for topic', {
+            policyId,
+            topic,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         return [];
     }
 }
@@ -78,7 +84,13 @@ async function getComparisonContext(policy1Id, policy2Id, topics = COMPARISON_TO
             }
         }
         catch (error) {
-            console.error(`Error getting comparison context for topic "${topic}":`, error);
+            logger_1.default.warn('Error getting comparison context for topic', {
+                policy1Id,
+                policy2Id,
+                topic,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined,
+            });
             // Continue with other topics even if one fails
         }
     }
@@ -167,7 +179,15 @@ Provide a clear, conversational comparison that directly answers the user's ques
         };
     }
     catch (error) {
-        console.error(`Error comparing policies for question "${question}":`, error);
+        logger_1.default.error('Error comparing policies for question', {
+            policy1Id,
+            policy2Id,
+            policy1Name,
+            policy2Name,
+            question: question.substring(0, 100), // Log first 100 chars
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         throw error;
     }
 }
@@ -251,7 +271,10 @@ Return ONLY valid JSON matching the structure specified above.`;
             comparisonResult = JSON.parse(jsonContent);
         }
         catch (parseError) {
-            console.error('Failed to parse LLM response as JSON:', parseError);
+            logger_1.default.warn('Failed to parse LLM response as JSON in policy comparison', {
+                topic,
+                error: parseError instanceof Error ? parseError.message : 'Unknown error',
+            });
             // Fallback: return a basic comparison
             comparisonResult = {
                 policy1Summary: 'Unable to analyze Policy 1',
@@ -282,7 +305,13 @@ Return ONLY valid JSON matching the structure specified above.`;
         };
     }
     catch (error) {
-        console.error(`Error in comparePolicyLanguage for topic "${topic}":`, error);
+        logger_1.default.error('Error in comparePolicyLanguage for topic', {
+            topic,
+            policy1ChunkCount: policy1Chunks.length,
+            policy2ChunkCount: policy2Chunks.length,
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         // Return fallback result
         return {
             topic,
@@ -320,7 +349,13 @@ async function compareAllTopics(policy1Id, policy2Id, topics = COMPARISON_TOPICS
             }
         }
         catch (error) {
-            console.error(`Error comparing topic "${context.topic}":`, error);
+            logger_1.default.warn('Error comparing topic', {
+                policy1Id,
+                policy2Id,
+                topic: context.topic,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined,
+            });
             // Continue with other topics even if one fails
         }
     }

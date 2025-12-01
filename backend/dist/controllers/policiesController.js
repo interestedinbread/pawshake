@@ -1,10 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.comparePolicies = exports.reExtractPolicySummary = exports.getPolicies = exports.deletePolicy = exports.updatePolicyName = exports.createPolicy = void 0;
 exports.extractAndSavePolicySummary = extractAndSavePolicySummary;
 const db_1 = require("../db/db");
 const vectorService_1 = require("../services/vectorService");
 const extractionService_1 = require("../services/extractionService");
+const logger_1 = __importDefault(require("../utils/logger"));
 const createPolicy = async (req, res) => {
     try {
         const { name, description } = req.body;
@@ -26,7 +30,12 @@ const createPolicy = async (req, res) => {
         res.status(201).json({ result: response.rows[0] });
     }
     catch (err) {
-        console.error('Error creating policy:', err);
+        logger_1.default.error('Error creating policy', {
+            userId: req.userId || 'unknown',
+            policyName: req.body?.name || 'unknown',
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to create policy',
             message: err instanceof Error ? err.message : 'Unknown error',
@@ -71,7 +80,13 @@ const updatePolicyName = async (req, res) => {
         res.status(200).json({ policy: updateResult.rows[0] });
     }
     catch (err) {
-        console.error('Failed to update policy name', err);
+        logger_1.default.error('Failed to update policy name', {
+            policyId: req.params.policyId || 'unknown',
+            userId: req.userId || 'unknown',
+            newName: req.body?.name || 'unknown',
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to update policy',
             message: err instanceof Error ? err.message : 'Unknown error'
@@ -130,7 +145,12 @@ const deletePolicy = async (req, res) => {
         });
     }
     catch (err) {
-        console.error('Failed to delete policy', err);
+        logger_1.default.error('Failed to delete policy', {
+            policyId: req.params.policyId || 'unknown',
+            userId: req.userId || 'unknown',
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to delete policy',
             message: err instanceof Error ? err.message : 'Unknown error'
@@ -187,7 +207,11 @@ const getPolicies = async (req, res) => {
         res.status(200).json({ policies });
     }
     catch (error) {
-        console.error('Error fetching policies:', error);
+        logger_1.default.error('Error fetching policies', {
+            userId: req.userId || 'unknown',
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to fetch policies',
             message: error instanceof Error ? error.message : 'Unknown error',
@@ -288,7 +312,12 @@ const reExtractPolicySummary = async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error re-extracting policy summary:', error);
+        logger_1.default.error('Error re-extracting policy summary', {
+            policyId: req.params.policyId || 'unknown',
+            userId: req.userId || 'unknown',
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         if (error instanceof Error) {
             if (error.message === 'Policy not found or access denied') {
                 res.status(404).json({ error: 'Policy not found' });
@@ -405,7 +434,13 @@ const comparePolicies = async (req, res) => {
         res.status(200).json(response);
     }
     catch (err) {
-        console.error('Error comparing policies:', err);
+        logger_1.default.error('Error comparing policies', {
+            userId: req.userId || 'unknown',
+            policyId1: req.query?.policyId1 || 'unknown',
+            policyId2: req.query?.policyId2 || 'unknown',
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+        });
         res.status(500).json({
             error: 'Failed to compare policies',
             message: err instanceof Error ? err.message : 'Unknown error',

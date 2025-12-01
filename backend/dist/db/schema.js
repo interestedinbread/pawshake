@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUsersTable = createUsersTable;
 exports.createPoliciesTable = createPoliciesTable;
@@ -6,6 +9,7 @@ exports.createDocumentsTable = createDocumentsTable;
 exports.createPolicySummariesTable = createPolicySummariesTable;
 exports.initializeSchema = initializeSchema;
 const db_1 = require("./db");
+const logger_1 = __importDefault(require("../utils/logger"));
 async function createUsersTable() {
     try {
         await db_1.db.query(`
@@ -23,10 +27,13 @@ async function createUsersTable() {
         await db_1.db.query(`
       CREATE INDEX IF NOT EXISTS users_email_idx ON users (email);
     `);
-        console.log('Users table initialized (already exists or created)');
+        logger_1.default.info('Users table initialized (already exists or created)');
     }
     catch (error) {
-        console.error('Error creating users table:', error);
+        logger_1.default.error('Error creating users table', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         throw error;
     }
 }
@@ -45,10 +52,13 @@ async function createPoliciesTable() {
         await db_1.db.query(`
       CREATE INDEX IF NOT EXISTS policies_user_id_idx ON policies (user_id);
     `);
-        console.log('Policies table initialized (already exists or created)');
+        logger_1.default.info('Policies table initialized (already exists or created)');
     }
     catch (error) {
-        console.error('Error creating policies table:', error);
+        logger_1.default.error('Error creating policies table', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         throw error;
     }
 }
@@ -78,10 +88,13 @@ async function createDocumentsTable() {
         await db_1.db.query(`
       CREATE INDEX IF NOT EXISTS documents_policy_id_idx ON documents (policy_id);
     `);
-        console.log('Documents table initialized (already exists or created)');
+        logger_1.default.info('Documents table initialized (already exists or created)');
     }
     catch (error) {
-        console.error('Error creating documents table:', error);
+        logger_1.default.error('Error creating documents table', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         throw error;
     }
 }
@@ -112,10 +125,13 @@ async function createPolicySummariesTable() {
       CREATE INDEX IF NOT EXISTS policy_summaries_summary_data_idx 
       ON policy_summaries USING GIN (summary_data);
     `);
-        console.log('Policy summaries table initialized (already exists or created)');
+        logger_1.default.info('Policy summaries table initialized (already exists or created)');
     }
     catch (error) {
-        console.error('Error creating policy summaries table:', error);
+        logger_1.default.error('Error creating policy summaries table', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+        });
         throw error;
     }
 }

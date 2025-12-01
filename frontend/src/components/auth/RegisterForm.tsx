@@ -54,7 +54,7 @@ export function RegisterForm () {
             <form
             onSubmit={handleRegister}>
                 {error && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    <div className="mb-4 p-3 border rounded-lg text-sm border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
                         {error}
                     </div>
                 )}

@@ -7,6 +7,7 @@ exports.login = exports.register = void 0;
 const db_1 = require("../db/db");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const env_1 = require("../config/env");
 const register = async (email, password) => {
     //    check if user exists
     const query = `SELECT * FROM users WHERE email = $1`;
@@ -23,10 +24,6 @@ exports.register = register;
 const login = async (email, password) => {
     const query = `SELECT * FROM users WHERE email = $1`;
     const result = await db_1.db.query(query, [email]);
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-        throw new Error('JWT_SECRET is not defined in env variables');
-    }
     if (result.rows.length === 0) {
         throw new Error('Invalid email or password');
     }
@@ -36,9 +33,9 @@ const login = async (email, password) => {
         throw new Error('Invalid email or password');
     }
     const options = {
-        expiresIn: (process.env.JWT_EXPIRES_IN || '7d')
+        expiresIn: env_1.env.jwtExpiresIn
     };
-    const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email }, jwtSecret, options);
+    const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email }, env_1.env.jwtSecret, options);
     return {
         user: {
             id: user.id,

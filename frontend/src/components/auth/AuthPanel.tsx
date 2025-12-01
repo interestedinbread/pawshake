@@ -11,7 +11,7 @@ export function AuthPanel() {
     return (
         <div>
             {mode === 'login' ? <LoginForm /> : <RegisterForm />}
-            <p className="py-4 text-center text-gray-600">
+            <p className="py-4 text-center text-[var(--color-dark-text-secondary)]">
                 {mode === 'login' ? 'Not yet signed up?' : 'Already signed up?'}
             </p>
             <Button
