@@ -5,6 +5,7 @@ import { chunkDocument } from '../services/chunkingService';
 import { storeChunks, deleteChunksByDocumentId } from '../services/vectorService';
 import { extractAndSavePolicySummary } from './policiesController';
 import { db } from '../db/db';
+import logger from '../utils/logger';
 
 export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -122,7 +123,13 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
         });
       } catch (err) {
         // Handle individual file errors (continue processing other files)
-        console.error(`Error processing file ${file.originalname}:`, err);
+        logger.error('Error processing file during upload', {
+          filename: file.originalname,
+          userId,
+          policyId,
+          error: err instanceof Error ? err.message : 'Unknown error',
+          stack: err instanceof Error ? err.stack : undefined,
+        });
         uploadResults.push({
           status: 'error',
           filename: file.originalname,
@@ -179,7 +186,13 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
       ...(policySummary && { policySummary }), // Include policy summary if extraction succeeded
     });
   } catch (error) {
-    console.error('Error uploading document:', error);
+    logger.error('Error uploading document', {
+      userId: req.userId || 'unknown',
+      policyId: req.body?.policyId || 'unknown',
+      fileCount: Array.isArray(req.files) ? req.files.length : 0,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     res.status(500).json({
       error: 'Failed to process document',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -255,7 +268,12 @@ export const getPolicySummary = async (req: Request, res: Response): Promise<voi
       })),
     });
   } catch (error) {
-    console.error('Error fetching policy summary:', error);
+    logger.error('Error fetching policy summary', {
+      policyId: req.params.policyId || 'unknown',
+      userId: req.userId || 'unknown',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     res.status(500).json({
       error: 'Failed to fetch policy summary',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -305,7 +323,12 @@ export const getPolicyDocuments = async (req: Request, res: Response): Promise<v
       documents: documentsResult.rows,
     });
   } catch (error) {
-    console.error('Error fetching policy documents:', error);
+    logger.error('Error fetching policy documents', {
+      policyId: req.params.policyId || 'unknown',
+      userId: req.userId || 'unknown',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     res.status(500).json({
       error: 'Failed to fetch policy documents',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -389,7 +412,12 @@ export const deleteDocument = async (req: Request, res: Response): Promise<void>
       deletedChunks,
     });
   } catch (err) {
-    console.error('Failed to delete document:', err);
+    logger.error('Failed to delete document', {
+      documentId: req.params.documentId || 'unknown',
+      userId: req.userId || 'unknown',
+      error: err instanceof Error ? err.message : 'Unknown error',
+      stack: err instanceof Error ? err.stack : undefined,
+    });
     res.status(500).json({
       error: 'Failed to delete document',
       message: err instanceof Error ? err.message : 'Unknown error',

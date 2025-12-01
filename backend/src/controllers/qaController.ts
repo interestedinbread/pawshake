@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { answerQuestion } from '../services/qaService'
+import logger from '../utils/logger'
 
 export const getAnswer = async (req: Request, res: Response): Promise<void> => {
     
@@ -21,7 +22,14 @@ export const getAnswer = async (req: Request, res: Response): Promise<void> => {
         res.status(200).json(qaResponse)
 
     } catch (err) {
-        console.error('Error answering question:', err);
+        logger.error('Error answering question', {
+            userId: req.userId || 'unknown',
+            policyId: req.body?.policyId || null,
+            documentId: req.body?.documentId || null,
+            question: req.body?.question?.substring(0, 100) || 'unknown', // Log first 100 chars
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+        });
         res.status(500).json({ 
             error: 'Failed to generate answer',
             message: err instanceof Error ? err.message : 'Unknown error'
