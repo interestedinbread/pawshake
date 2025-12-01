@@ -5,8 +5,33 @@ import logger from '../utils/logger';
 // Helper function to parse ChromaDB URL and create client
 function createChromaClient(url: string): ChromaClient {
   try {
-    // Ensure URL has protocol
     let chromaUrl = url.trim();
+    
+    // Handle Railway internal networking (service name only, no protocol)
+    // Format: "chromadb" or "chromadb:8000"
+    if (!chromaUrl.includes('://') && !chromaUrl.includes('.')) {
+      // This looks like a Railway service name (internal networking)
+      const parts = chromaUrl.split(':');
+      const host = parts[0];
+      
+      if (!host || host.length === 0) {
+        throw new Error(`Invalid service name in CHROMA_URL: ${url}`);
+      }
+      
+      const port = parts[1] ? parseInt(parts[1], 10) : 8000;
+      
+      if (isNaN(port) || port < 1 || port > 65535) {
+        throw new Error(`Invalid port in CHROMA_URL: ${url}`);
+      }
+      
+      return new ChromaClient({
+        host,
+        port,
+        ssl: false, // Internal networking uses http
+      });
+    }
+    
+    // Ensure URL has protocol for external/public URLs
     if (!chromaUrl.startsWith('http://') && !chromaUrl.startsWith('https://')) {
       // Default to https for production, http for localhost
       chromaUrl = chromaUrl.includes('localhost') || chromaUrl.includes('127.0.0.1')
@@ -14,7 +39,7 @@ function createChromaClient(url: string): ChromaClient {
         : `https://${chromaUrl}`;
     }
 
-    // Parse the URL
+    // Parse the URL for external/public connections
     const urlObj = new URL(chromaUrl);
     const host = urlObj.hostname;
     const port = urlObj.port ? parseInt(urlObj.port, 10) : (urlObj.protocol === 'https:' ? 443 : 8000);
@@ -29,7 +54,9 @@ function createChromaClient(url: string): ChromaClient {
   } catch (error) {
     throw new Error(
       `Invalid CHROMA_URL format: ${url}\n` +
-      `Expected format: http://host:port or https://host:port\n` +
+      `Expected formats:\n` +
+      `  - Internal (Railway): chromadb or chromadb:8000\n` +
+      `  - External: http://host:port or https://host:port\n` +
       `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
