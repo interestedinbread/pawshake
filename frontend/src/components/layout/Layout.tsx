@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Button } from '../common/Button';
 import { useAuth } from '../../contexts/AuthContext';
@@ -18,6 +19,15 @@ const navLinks = [
 
 export function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--color-dark-bg)]">
@@ -61,27 +71,50 @@ export function Layout({ children }: LayoutProps) {
             <Button variant="outline" size="sm" onClick={logout}>
               Logout
             </Button>
+            
+            {/* Mobile menu button */}
+            <button
+              onClick={toggleMobileMenu}
+              className="md:hidden p-2 rounded-lg text-[var(--color-dark-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-dark-card)] transition-colors"
+              aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? (
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Mobile navigation */}
-        <nav className="border-t md:hidden bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
-          <div className="flex justify-around px-2 py-3">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                className={({ isActive }) =>
-                  `text-sm font-medium ${
-                    isActive ? 'text-[var(--color-primary)]' : 'text-[var(--color-dark-text-secondary)]'
-                  }`
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </div>
-        </nav>
+        {/* Mobile navigation menu */}
+        {isMobileMenuOpen && (
+          <nav className="border-t md:hidden bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
+            <div className="flex flex-col px-4 py-3 space-y-2">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  onClick={closeMobileMenu}
+                  className={({ isActive }) =>
+                    `text-sm font-medium py-2 px-3 rounded-lg transition-colors ${
+                      isActive 
+                        ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/10' 
+                        : 'text-[var(--color-dark-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-dark-card)]'
+                    }`
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+            </div>
+          </nav>
+        )}
       </header>
 
       <main className="flex-1">
