@@ -1,4 +1,5 @@
 import { db } from './db';
+import logger from '../utils/logger';
 
 export async function createUsersTable(): Promise<void> {
   try {
@@ -23,9 +24,12 @@ export async function createUsersTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS users_email_idx ON users (email);
     `);
 
-    console.log('Users table initialized (already exists or created)');
+    logger.info('Users table initialized (already exists or created)');
   } catch (error) {
-    console.error('Error creating users table:', error);
+    logger.error('Error creating users table', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     throw error;
   }
 }
@@ -47,9 +51,12 @@ export async function createPoliciesTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS policies_user_id_idx ON policies (user_id);
     `);
 
-    console.log('Policies table initialized (already exists or created)');
+    logger.info('Policies table initialized (already exists or created)');
   } catch (error) {
-    console.error('Error creating policies table:', error);
+    logger.error('Error creating policies table', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     throw error;
   }
 }
@@ -84,9 +91,12 @@ export async function createDocumentsTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS documents_policy_id_idx ON documents (policy_id);
     `);
 
-    console.log('Documents table initialized (already exists or created)');
+    logger.info('Documents table initialized (already exists or created)');
   } catch (error) {
-    console.error('Error creating documents table:', error);
+    logger.error('Error creating documents table', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     throw error;
   }
 }
@@ -123,9 +133,12 @@ export async function createPolicySummariesTable(): Promise<void> {
       ON policy_summaries USING GIN (summary_data);
     `);
 
-    console.log('Policy summaries table initialized (already exists or created)');
+    logger.info('Policy summaries table initialized (already exists or created)');
   } catch (error) {
-    console.error('Error creating policy summaries table:', error);
+    logger.error('Error creating policy summaries table', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     throw error;
   }
 }

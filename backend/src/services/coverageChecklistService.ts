@@ -1,6 +1,7 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { querySimilarChunks, SimilarChunk } from './vectorService';
 import { env } from '../config/env';
+import logger from '../utils/logger';
 
 // Initialize OpenAI chat model
 const chatModel = new ChatOpenAI({
@@ -260,7 +261,11 @@ Return ONLY the JSON object matching the structure specified above. Do not inclu
       const jsonContent = jsonMatch ? jsonMatch[0] : content;
       checklistData = JSON.parse(jsonContent);
     } catch (parseError) {
-      console.error('Failed to parse LLM response as JSON:', parseError);
+      logger.warn('Failed to parse LLM response as JSON in coverage analysis', {
+        policyId,
+        incidentDescription: incidentDescription.substring(0, 100), // Log first 100 chars
+        error: parseError instanceof Error ? parseError.message : 'Unknown error',
+      });
       // Return fallback checklist
       return {
         isCovered: 'unclear',
@@ -301,7 +306,12 @@ Return ONLY the JSON object matching the structure specified above. Do not inclu
       sourceChunks,
     };
   } catch (error) {
-    console.error(`Error analyzing incident coverage:`, error);
+    logger.error('Error analyzing incident coverage', {
+      policyId,
+      incidentDescription: incidentDescription.substring(0, 100), // Log first 100 chars
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     throw new Error(
       `Failed to analyze coverage: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
