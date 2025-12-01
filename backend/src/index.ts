@@ -8,6 +8,7 @@ import morgan from 'morgan'
 
 import { env } from './config/env'
 import { testDatabaseConnection } from './db/db'
+import { testChromaConnection } from './db/chromaClient'
 import { initializeSchema } from './db/schema'
 import logger from './utils/logger'
 import authRoutes from './routes/authRoutes'
@@ -75,6 +76,11 @@ app.use((err: unknown, req: express.Request, res: express.Response, _next: expre
     logger.info('Testing database connection...');
     await testDatabaseConnection();
     logger.info('Database connection successful');
+
+    // Test ChromaDB connection
+    logger.info('Testing ChromaDB connection...');
+    await testChromaConnection();
+    logger.info('ChromaDB connection successful');
 
     // Initialize database schema
     logger.info('Initializing database schema...');
