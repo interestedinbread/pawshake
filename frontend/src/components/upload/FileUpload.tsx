@@ -137,26 +137,26 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10,
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section className="rounded-2xl border shadow-lg bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6">
         <header className="space-y-2">
-          <h2 className="text-2xl font-semibold text-slate-900">Upload your policy PDFs</h2>
-          <p className="text-sm text-slate-600">
+          <h2 className="text-2xl font-semibold text-[var(--color-dark-text-primary)] font-['Nunito']">Upload your policy PDFs</h2>
+          <p className="text-sm text-[var(--color-dark-text-secondary)]">
             Upload one or more PDFs to add to this policy bundle. We&apos;ll extract a structured summary, generate embeddings for Q&A, and surface anything that needs
             attention. PDFs up to {maxFileSizeMb} MB are supported (max {maxFiles} files).
           </p>
         </header>
 
         <div className="grid gap-6 md:grid-cols-[1.1fr,1fr]">
-          <div className="space-y-3 text-sm text-slate-600">
-            <p className="font-semibold text-slate-900">What happens after upload?</p>
+          <div className="space-y-3 text-sm text-[var(--color-dark-text-secondary)]">
+            <p className="font-semibold text-[var(--color-dark-text-primary)]">What happens after upload?</p>
             <ul className="list-disc space-y-2 pl-4">
               <li>We extract text and metadata directly from the PDF (OCR fallback coming soon).</li>
               <li>Chunk the policy and store embeddings for Retrieval-Augmented Q&A.</li>
               <li>Generate a policy summary with confidence indicators and source citations.</li>
               <li>You can review, edit, and confirm before filing claims.</li>
             </ul>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--color-dark-text-muted)]">
               Uploading indicates you have the right to process this document. We keep data inside your account only.
             </p>
           </div>
@@ -169,14 +169,14 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10,
               onDrop={handleDrop}
               className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
                 isDragging
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-slate-300 bg-slate-50 hover:border-blue-400'
+                  ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10'
+                  : 'border-[var(--color-dark-border)] bg-[var(--color-dark-card)] hover:border-[var(--color-primary)]/50'
               }`}
             >
-              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-600">
+              <span className="rounded-full bg-[var(--color-primary)]/20 px-3 py-1 text-sm font-medium text-[var(--color-primary)]">
                 Drag &amp; drop or choose files
               </span>
-              <p className="text-sm text-slate-600">Accepts PDF (.pdf) — up to {maxFileSizeMb} MB per file</p>
+              <p className="text-sm text-[var(--color-dark-text-secondary)]">Accepts PDF (.pdf) — up to {maxFileSizeMb} MB per file</p>
               <input
                 ref={fileInputRef}
                 id="policy-upload"
@@ -197,20 +197,20 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10,
               </Button>
               {selectedFiles.length > 0 && (
                 <div className="w-full mt-2 space-y-2">
-                  <p className="text-xs font-medium text-slate-700">
+                  <p className="text-xs font-medium text-[var(--color-dark-text-primary)]">
                     {selectedFiles.length} file{selectedFiles.length !== 1 ? 's' : ''} selected:
                   </p>
                   <div className="max-h-32 overflow-y-auto space-y-1">
                     {selectedFiles.map((file, index) => (
                       <div
                         key={`${file.name}-${index}`}
-                        className="flex items-center justify-between bg-white border border-slate-200 rounded px-2 py-1 text-xs"
+                        className="flex items-center justify-between bg-[var(--color-dark-surface)] border border-[var(--color-dark-border)] rounded px-2 py-1 text-xs"
                       >
-                        <span className="text-slate-600 truncate flex-1 mr-2">{file.name}</span>
+                        <span className="text-[var(--color-dark-text-secondary)] truncate flex-1 mr-2">{file.name}</span>
                         <button
                           type="button"
                           onClick={() => handleRemoveFile(index)}
-                          className="text-red-600 hover:text-red-700 font-medium"
+                          className="text-[#fca5a5] hover:text-[#f87171] font-medium transition-colors"
                           aria-label={`Remove ${file.name}`}
                         >
                           ×
@@ -223,7 +223,7 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10,
             </label>
 
             {error && (
-              <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600">
+              <div className="rounded-lg border px-3 py-2 text-sm border-[rgba(239,68,68,0.5)] bg-[rgba(239,68,68,0.1)] text-[#fca5a5]">
                 {error}
               </div>
             )}
@@ -231,7 +231,7 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10,
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-[var(--color-dark-text-muted)]">
             Need help? Upload a sample policy to see how the extraction works before using a real document.
           </p>
           <Button 
