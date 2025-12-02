@@ -49,14 +49,14 @@ export function UploadSuccess({
   };
 
   return (
-    <div className="rounded-2xl border border-green-200 bg-green-50 shadow-sm">
+    <div className="rounded-2xl border shadow-lg bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       <div className="p-6 space-y-6">
         {/* Success Header */}
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20">
               <svg
-                className="w-6 h-6 text-green-600"
+                className="w-6 h-6 text-emerald-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -71,45 +71,45 @@ export function UploadSuccess({
             </div>
           </div>
           <div className="flex-1">
-            <h2 className="text-2xl font-semibold text-green-900">
+            <h2 className="text-2xl font-semibold text-[var(--color-dark-text-primary)] font-['Nunito']">
               Upload Complete!
             </h2>
-            <p className="text-sm text-green-700 mt-1">
-              Files have been uploaded to <span className="font-medium">{policyName}</span>
+            <p className="text-sm text-[var(--color-dark-text-secondary)] mt-1">
+              Files have been uploaded to <span className="font-medium text-[var(--color-primary)]">{policyName}</span>
             </p>
           </div>
         </div>
 
         {/* Statistics */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg border border-green-200 p-4 text-center">
-            <p className="text-2xl font-bold text-green-900">{summary.totalFiles}</p>
-            <p className="text-xs text-green-700 mt-1">Total Files</p>
+          <div className="bg-[var(--color-dark-card)] rounded-lg border border-[var(--color-dark-border)] p-4 text-center">
+            <p className="text-2xl font-bold text-[var(--color-dark-text-primary)]">{summary.totalFiles}</p>
+            <p className="text-xs text-[var(--color-dark-text-secondary)] mt-1">Total Files</p>
           </div>
-          <div className="bg-white rounded-lg border border-green-200 p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">{summary.successful}</p>
-            <p className="text-xs text-green-700 mt-1">Successful</p>
+          <div className="bg-[var(--color-dark-card)] rounded-lg border border-emerald-500/30 p-4 text-center">
+            <p className="text-2xl font-bold text-emerald-400">{summary.successful}</p>
+            <p className="text-xs text-[var(--color-dark-text-secondary)] mt-1">Successful</p>
           </div>
-          <div className="bg-white rounded-lg border border-green-200 p-4 text-center">
-            <p className="text-2xl font-bold text-red-600">{summary.failed}</p>
-            <p className="text-xs text-green-700 mt-1">Failed</p>
+          <div className="bg-[var(--color-dark-card)] rounded-lg border border-[rgba(239,68,68,0.3)] p-4 text-center">
+            <p className="text-2xl font-bold text-[#f87171]">{summary.failed}</p>
+            <p className="text-xs text-[var(--color-dark-text-secondary)] mt-1">Failed</p>
           </div>
         </div>
 
         {/* Successful Files List */}
         {successfulFiles.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-green-900 mb-2">
+            <h3 className="text-sm font-semibold text-[var(--color-dark-text-primary)] mb-2">
               Successfully Uploaded ({successfulFiles.length})
             </h3>
             <div className="space-y-1 max-h-32 overflow-y-auto">
               {successfulFiles.map((result, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 bg-white border border-green-200 rounded px-3 py-2 text-sm"
+                  className="flex items-center gap-2 bg-[var(--color-dark-card)] border border-emerald-500/30 rounded px-3 py-2 text-sm"
                 >
                   <svg
-                    className="w-4 h-4 text-green-600 flex-shrink-0"
+                    className="w-4 h-4 text-emerald-400 flex-shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -121,7 +121,7 @@ export function UploadSuccess({
                       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <span className="text-green-900 truncate">
+                  <span className="text-[var(--color-dark-text-primary)] truncate">
                     {result.document?.filename || result.filename}
                   </span>
                 </div>
@@ -133,18 +133,18 @@ export function UploadSuccess({
         {/* Failed Files List */}
         {failedFiles.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-red-900 mb-2">
+            <h3 className="text-sm font-semibold text-[var(--color-dark-text-primary)] mb-2">
               Failed Uploads ({failedFiles.length})
             </h3>
             <div className="space-y-2">
               {failedFiles.map((result, index) => (
                 <div
                   key={index}
-                  className="bg-white border border-red-200 rounded px-3 py-2 text-sm"
+                  className="bg-[var(--color-dark-card)] border border-[rgba(239,68,68,0.3)] rounded px-3 py-2 text-sm"
                 >
                   <div className="flex items-start gap-2">
                     <svg
-                      className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"
+                      className="w-4 h-4 text-[#f87171] flex-shrink-0 mt-0.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -157,11 +157,11 @@ export function UploadSuccess({
                       />
                     </svg>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-red-900 truncate">
+                      <p className="font-medium text-[var(--color-dark-text-primary)] truncate">
                         {result.filename || 'Unknown file'}
                       </p>
                       {result.error && (
-                        <p className="text-xs text-red-700 mt-1">{result.error}</p>
+                        <p className="text-xs text-[#fca5a5] mt-1">{result.error}</p>
                       )}
                     </div>
                   </div>
@@ -172,7 +172,7 @@ export function UploadSuccess({
         )}
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-green-200">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[var(--color-dark-border)]">
           {summary.successful > 0 && (
             <Button
               variant="primary"
