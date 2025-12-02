@@ -85,7 +85,7 @@ export function UploadPage() {
     if (step === 'create') {
         return (
             <div className="max-w-2xl mx-auto">
-                <section className="rounded-2xl border shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
+                <section className="rounded-2xl border shadow-lg bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
                     <form onSubmit={handleCreatePolicy} className="flex flex-col gap-6 p-6">
                         <header className="space-y-2">
                             <h2 className="text-2xl font-semibold text-[var(--color-dark-text-primary)]">Create Policy Bundle</h2>
@@ -167,10 +167,10 @@ export function UploadPage() {
         <div className="max-w-4xl mx-auto space-y-6">
             {/* Policy info banner */}
             {createdPolicyName && (
-                <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 flex items-center justify-between">
+                <div className="rounded-lg border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 px-4 py-3 flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium text-blue-900">Uploading to: {createdPolicyName}</p>
-                        <p className="text-xs text-blue-700 mt-1">You can upload multiple PDFs to this policy bundle</p>
+                        <p className="text-sm font-medium text-[var(--color-primary)]">Uploading to: {createdPolicyName}</p>
+                        <p className="text-xs text-[var(--color-dark-text-secondary)] mt-1">You can upload multiple PDFs to this policy bundle</p>
                     </div>
                     <Button
                         type="button"
