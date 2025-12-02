@@ -143,7 +143,15 @@ export function UploadPage() {
     // Show skeleton while uploading
     if (isSubmitting && !uploadResponse) {
         return (
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto space-y-4">
+                <div className="rounded-lg border px-4 py-3 bg-[var(--color-primary)]/10 border-[var(--color-primary)]/30">
+                    <p className="text-sm font-medium text-[var(--color-primary)]">
+                        Uploading and processing your documents...
+                    </p>
+                    <p className="text-xs text-[var(--color-dark-text-secondary)] mt-1">
+                        This may take a few moments. Please don't close this page.
+                    </p>
+                </div>
                 <UploadSuccessSkeleton />
             </div>
         );
