@@ -19,7 +19,6 @@ export function SummaryHeader({
   lastUpdated,
   confidence,
   onRefresh,
-  onDownload,
   isRefreshing = false,
 }: SummaryHeaderProps) {
   const displayPlan = planName || 'Policy summary';
