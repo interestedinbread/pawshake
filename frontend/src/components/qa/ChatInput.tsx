@@ -41,7 +41,7 @@ export function ChatInput({
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex gap-2 items-end rounded-lg border border-slate-300 bg-white p-2 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-0">
+      <div className="flex gap-2 items-end rounded-lg border border-[var(--color-dark-border)] bg-[var(--color-dark-surface)] p-2 shadow-sm focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-0">
         <textarea
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
@@ -49,7 +49,7 @@ export function ChatInput({
           placeholder={placeholder}
           disabled={disabled || isLoading}
           rows={1}
-          className="flex-1 resize-none border-0 focus:outline-none focus:ring-0 px-2 py-2 text-sm text-slate-900 placeholder:text-slate-400 disabled:bg-gray-50 disabled:cursor-not-allowed"
+          className="flex-1 resize-none border-0 focus:outline-none focus:ring-0 px-2 py-2 text-sm text-[var(--color-dark-text-primary)] placeholder:text-[var(--color-dark-text-muted)] disabled:bg-[var(--color-dark-surface)] disabled:cursor-not-allowed bg-transparent"
           style={{
             minHeight: '40px',
             maxHeight: '120px',

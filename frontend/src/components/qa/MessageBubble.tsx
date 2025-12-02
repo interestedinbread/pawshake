@@ -21,11 +21,11 @@ export function MessageBubble({
   if (isLoading) {
     return (
       <div className="flex justify-start">
-        <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-slate-100 px-4 py-3">
+        <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-[var(--color-dark-card)] px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-slate-400" />
-            <div className="h-2 w-2 animate-pulse rounded-full bg-slate-400 [animation-delay:0.2s]" />
-            <div className="h-2 w-2 animate-pulse rounded-full bg-slate-400 [animation-delay:0.4s]" />
+            <div className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-dark-text-muted)]" />
+            <div className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-dark-text-muted)] [animation-delay:0.2s]" />
+            <div className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-dark-text-muted)] [animation-delay:0.4s]" />
           </div>
         </div>
       </div>
@@ -40,7 +40,7 @@ export function MessageBubble({
             <p className="whitespace-pre-wrap text-sm leading-relaxed">{content}</p>
           </div>
           {formattedTime && (
-            <p className="text-right text-xs text-slate-500">{formattedTime}</p>
+            <p className="text-right text-xs text-[var(--color-dark-text-muted)]">{formattedTime}</p>
           )}
         </div>
       </div>
@@ -51,11 +51,11 @@ export function MessageBubble({
   return (
     <div className="flex justify-start">
       <div className="max-w-[80%] space-y-1">
-        <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-3 shadow-sm">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-900">{content}</p>
+        <div className="rounded-2xl rounded-tl-sm border border-[var(--color-dark-border)] bg-[var(--color-dark-card)] px-4 py-3 shadow-sm">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-dark-text-primary)]">{content}</p>
         </div>
         {formattedTime && (
-          <p className="text-left text-xs text-slate-500">{formattedTime}</p>
+          <p className="text-left text-xs text-[var(--color-dark-text-muted)]">{formattedTime}</p>
         )}
       </div>
     </div>
