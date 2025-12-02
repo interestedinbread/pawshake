@@ -24,8 +24,8 @@ export function WelcomeCard() {
             Hi {userName}! 
           </h2>
           <p className="max-w-xl text-base text-[var(--color-dark-text-secondary)]">
-            Upload a new policy, review your extracted summaries, or ask a coverage question.
-            We&apos;ll surface the key details you need to file claims confidently.
+            Policy Boi helps you navigate the terms and conditions of your pet insurance policy.
+            Just upload your policy to get started!
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">

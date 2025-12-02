@@ -142,8 +142,7 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10,
         <header className="space-y-2">
           <h2 className="text-2xl font-semibold text-[var(--color-dark-text-primary)] font-['Nunito']">Upload your policy PDFs</h2>
           <p className="text-sm text-[var(--color-dark-text-secondary)]">
-            Upload one or more PDFs to add to this policy bundle. We&apos;ll extract a structured summary, generate embeddings for Q&A, and surface anything that needs
-            attention. PDFs up to {maxFileSizeMb} MB are supported (max {maxFiles} files).
+            Upload one or more PDFs to add to this policy bundle. We&apos;ll extract a structured summary and get your policy ready for analysis. PDFs up to {maxFileSizeMb} MB are supported (max {maxFiles} files).
           </p>
         </header>
 
@@ -152,9 +151,8 @@ export function FileUpload({ onSubmit, isSubmitting = false, maxFileSizeMb = 10,
             <p className="font-semibold text-[var(--color-dark-text-primary)]">What happens after upload?</p>
             <ul className="list-disc space-y-2 pl-4">
               <li>We extract text and metadata directly from the PDF (OCR fallback coming soon).</li>
-              <li>Chunk the policy and store embeddings for Retrieval-Augmented Q&A.</li>
-              <li>Generate a policy summary with confidence indicators and source citations.</li>
-              <li>You can review, edit, and confirm before filing claims.</li>
+              <li>We convert the policy into data called vector embeddings, allowing our agent interpret them rapidly.</li>
+              <li>We generate a policy summary with confidence indicators and source citations.</li>
             </ul>
             <p className="text-xs text-[var(--color-dark-text-muted)]">
               Uploading indicates you have the right to process this document. We keep data inside your account only.

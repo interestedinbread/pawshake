@@ -54,14 +54,7 @@ export function SummaryHeader({
             >
               Refresh summary
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={onDownload}
-              disabled={!onDownload}
-            >
-              Download PDF
-            </Button>
+            
           </div>
         </div>
       </div>

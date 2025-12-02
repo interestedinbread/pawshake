@@ -90,7 +90,7 @@ export function UploadPage() {
                         <header className="space-y-2">
                             <h2 className="text-2xl font-semibold text-[var(--color-dark-text-primary)]">Create Policy Bundle</h2>
                             <p className="text-sm text-[var(--color-dark-text-secondary)]">
-                                Your policy bundle will be used to organize your documents. You can add multiple PDFs to the same bundle.
+                                Before uploading, let's create a policy bundle. This is where all of your policy documents will be saved. You can add multiple PDFs to the same bundle.
                             </p>
                         </header>
 
