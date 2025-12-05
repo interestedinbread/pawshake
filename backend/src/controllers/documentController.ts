@@ -1,6 +1,6 @@
 /// <reference path="../types/express.d.ts" />
 import { Request, Response } from 'express';
-import { extractTextFromPDF } from '../services/documentServices';
+import { extractTextFromPDF } from '../services/textExtractionService';
 import { chunkDocument } from '../services/chunkingService';
 import { storeChunks, deleteChunksByDocumentId } from '../services/vectorService';
 import { extractAndSavePolicySummary } from './policiesController';
