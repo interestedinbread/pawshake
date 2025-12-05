@@ -41,7 +41,7 @@ export async function extractPolicySummary(
     // Step 2: Request structured extraction from LLM
     // gpt-4o-mini supports ~128k tokens, so we can safely use much more text
     // Use up to 100k characters (roughly ~25k tokens) to ensure we capture all documents
-    const maxChars = 100000;
+    const maxChars = 400000;
     const truncatedText = documentText.length > maxChars 
       ? documentText.substring(0, maxChars) + '\n\n[... document truncated due to length ...]'
       : documentText;
