@@ -41,7 +41,7 @@ export function SummaryHeader({
           )}
         </div>
 
-        <div className="flex flex-col-reverse gap-3 lg:flex-row lg:items-center">
+        <div className="flex flex-col-reverse items-start gap-3 lg:flex-row lg:items-center">
           <ConfidenceBadge level={confidence} />
           <div className="flex gap-3">
             <Button

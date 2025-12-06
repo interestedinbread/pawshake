@@ -26,7 +26,7 @@ export function ConfidenceBadge({ level }: ConfidenceBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full px-4 py-1 text-sm font-medium ${config.classes}`}
+      className={`flex items-center gap-2 rounded-full px-2 md:px-4 py-1 text-[0.6rem] md:text-sm font-medium ${config.classes}`}
     >
       <span className="h-2 w-2 rounded-full bg-current" aria-hidden="true" />
       {config.label}
