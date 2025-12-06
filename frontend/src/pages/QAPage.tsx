@@ -93,21 +93,26 @@ export function QAPage() {
     <div className="flex h-[calc(100vh-200px)] flex-col rounded-2xl border shadow-sm bg-[var(--color-dark-surface)] border-[var(--color-dark-border)]">
       {/* Header */}
       <div className="border-b px-6 py-4 rounded-t-2xl bg-[var(--color-dark-card)] border-[var(--color-dark-border)]">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col md:flex-row items-start justify-between">
           <div>
             <h1 className="text-xl font-semibold text-[var(--color-dark-text-primary)]">Ask about your policy</h1>
             <p className="mt-1 text-sm text-[var(--color-dark-text-secondary)]">
               Get answers to questions about your policy coverage, limits, and more.
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(`/claim-checklist?policyId=${encodeURIComponent(policyId)}`)}
-            className="ml-4"
-          >
-            📋 Create Claim Checklist
-          </Button>
+          <div className='mt-4 flex items-center gap-2 md:gap-0 flex-row md:flex-col'>
+            <p className="mb-1 md:ml-4 text-xs md:text-sm italic text-[var(--color-dark-text-secondary)]">
+              Had an incident?
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/claim-checklist?policyId=${encodeURIComponent(policyId)}`)}
+              className="md:ml-4"
+            >
+              📋 Create Claim Checklist
+            </Button>
+          </div>
         </div>
       </div>
 
